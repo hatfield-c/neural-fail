@@ -1,46 +1,41 @@
-import time
-import math
-import cv2
-
 import torch
-import torch.nn as nn
-import torch.optim as optim
-import numpy as np
+import time
 
 import CONFIG
-import LossDirect
+import DataLoader
+import ModelLinear
 
 class Trainer:
-	def __init__(self, group):
-		self.group = group
-
+	def __init__(self):
+		pass
+	
 	def Train(self, epochs):
-		losser = LossDirect.LossDirect()
+		losser = torch.nn.MSELoss()
+		model = ModelLinear.ModelLinear().cuda()
+		loader = DataLoader.DataLoader()
+		pipeline = CONFIG.linear_pipeline
 		
-		_, loader = CONFIG.train_pipelines[self.group][0].Create()
-		loader.Load("train")
+		optimizer = torch.optim.Adam(
+			model.parameters(),
+			lr = CONFIG.learning_rate,
+		)
 		
-		for pipeline in CONFIG.train_pipelines[self.group]:
-			model, _ = pipeline.Create()
-			model = model.cuda()
+		print("Training...")
+		
+		avg_time = 1
+		start_total = time.time()
+		
+		for a in range(pipeline.ablation_count):
+			pipeline.Ablate(a, loader)
 			
-			optimizer = optim.Adam(
-				model.parameters(),
-				lr = pipeline.learning_rate,
-			)
-			
-			print("\n\nTraining pipeline", pipeline.pipeline_id)
-	
-			loss_vals = []
-			avg_time = 1
-			start_total = time.time()
-			save_snapshots = CONFIG.save_snapshots.copy()
-	
 			for e in range(epochs + 1):
 				start_time = time.time()
-	
-				loss = losser.GetLoss(model, loader)
-	
+		
+				img, pose = loader.DrawSamples(CONFIG.batch_size)
+				preds = model(img)
+		
+				loss = losser(preds, pose)
+		
 				optimizer.zero_grad()
 				loss.backward()
 				optimizer.step()
@@ -49,24 +44,18 @@ class Trainer:
 					avg_time = (time.time() - start_time) / 7
 				
 				self.PrintUpdate(epochs, e, avg_time, loss)
-				loss_vals.append(loss.cpu().detach().item())
-	
+		
 				avg_time = (avg_time + (time.time() - start_time)) / 2
 				
-				if e == save_snapshots[0]:
-					model.Save(pipeline.model_base_path + "/" + pipeline.pipeline_id + "_e" + str(e) + ".pt")
-					save_snapshots.pop(0)
-
-			loss_vals = np.array(loss_vals)
-			
-			np.savetxt(pipeline.model_base_path + "/" + pipeline.pipeline_id +  "_avg_epoch_time.txt", np.array([avg_time]))
-			np.savetxt(pipeline.model_base_path + "/" + pipeline.pipeline_id +  "_loss_vals.txt", loss_vals)
-
+				#if e == save_snapshots[0]:
+				#	model.Save(pipeline.model_base_path + "/" + pipeline.pipeline_id + "_e" + str(e) + ".pt")
+				#	save_snapshots.pop(0)
+		
+			model.Save(CONFIG.model_base_path + pipeline.model_id + "_a" + str(a) + ".pt")
+		
 			print("\nCompleted in", int((time.time() - start_total) / 60), "minutes.")
 			print("Final loss:", loss.item())
-			
-		return model
-
+		
 	def PrintUpdate(self, epochs, e, avg_time, loss):
 
 		remaining_epochs = epochs - e
