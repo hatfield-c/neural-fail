@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 
+import CONFIG
+
 class DataCompiler:
 	def __init__(self):
 		pass
@@ -13,7 +15,7 @@ class DataCompiler:
 			cv2.imwrite("data/in/" + str(i).zfill(4) + ".jpg", canvas)
 		
 	def GenerateSample(self, centroid):
-		canvas = np.zeros((64, 256, 3))
+		canvas = np.zeros((CONFIG.img_size[0], CONFIG.img_size[1], 3))
 		poly = np.array([[0, -24], [6, -8], [24, -8], [9, 3], [14, 19], [0, 10], [-14, 19], [-9, 3], [-24, -8], [-6,-8]])
 		
 		polygon = poly + centroid

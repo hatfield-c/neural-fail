@@ -2,16 +2,35 @@ import torch
 import cv2
 
 import ModelLinear
+import ModelLinearNorm
+import ModelVgg16
+import ModelDeepSet
 
 class Pipeline:
-	def __init__(self, model_id, ablations):
+	def __init__(self, model_id, learning_rate, epochs, print_every_epoch, ablations):
 		self.model_id = model_id
+		self.learning_rate = learning_rate
+		self.epochs = epochs
+		self.print_every_epoch = print_every_epoch
 		
-		model = None
+		model_type = None
+		losser_type = None
+		
 		if model_id == "linear":
-			model = ModelLinear.ModelLinear()
+			model_type = ModelLinear.ModelLinear
+			losser_type = torch.nn.MSELoss
+		elif model_id == "linear_norm":
+			model_type = ModelLinearNorm.ModelLinearNorm
+			losser_type = torch.nn.MSELoss	
+		elif model_id == "vgg16":
+			model_type = ModelVgg16.ModelVgg16
+			losser_type = torch.nn.MSELoss	
+		elif model_id == "deepset":
+			model_type = ModelDeepSet.ModelDeepSet
+			losser_type = torch.nn.MSELoss
 	
-		self.model = model
+		self.model_type = model_type
+		self.losser_type = losser_type
 		self.ablations = ablations
 		self.ablation_count = len(ablations)
 	

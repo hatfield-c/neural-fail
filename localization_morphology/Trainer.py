@@ -9,16 +9,10 @@ class Trainer:
 	def __init__(self):
 		pass
 	
-	def Train(self, epochs):
-		losser = torch.nn.MSELoss()
-		model = ModelLinear.ModelLinear().cuda()
-		loader = DataLoader.DataLoader()
-		pipeline = CONFIG.linear_pipeline
+	def Train(self, model_id):
+		pipeline = CONFIG.pipelines[model_id]
 		
-		optimizer = torch.optim.Adam(
-			model.parameters(),
-			lr = CONFIG.learning_rate,
-		)
+		loader = DataLoader.DataLoader()
 		
 		print("Training...")
 		
@@ -26,9 +20,21 @@ class Trainer:
 		start_total = time.time()
 		
 		for a in range(pipeline.ablation_count):
+			
+			if a != 2:
+				continue
+			
+			losser = pipeline.losser_type()
+			model = pipeline.model_type().cuda()
+		
+			optimizer = torch.optim.Adam(
+				model.parameters(),
+				lr = pipeline.learning_rate,
+			)	
+		
 			pipeline.Ablate(a, loader)
 			
-			for e in range(epochs + 1):
+			for e in range(pipeline.epochs + 1):
 				start_time = time.time()
 		
 				img, pose = loader.DrawSamples(CONFIG.batch_size)
@@ -43,8 +49,16 @@ class Trainer:
 				if e == 0:
 					avg_time = (time.time() - start_time) / 7
 				
-				self.PrintUpdate(epochs, e, avg_time, loss)
-		
+				self.PrintUpdate(pipeline.epochs, e, pipeline.print_every_epoch, avg_time, loss)
+				'''
+				if e % pipeline.print_every_epoch == 0:
+					model.eval()
+					baseline = model(loader.imgs[[0]].reshape(1, -1).cuda())
+					berr = loader.poses[[0]] - baseline.detach().cpu() * 255
+					print("<", berr, ">")
+					optimizer.zero_grad()
+					model.train()
+				'''
 				avg_time = (avg_time + (time.time() - start_time)) / 2
 				
 				#if e == save_snapshots[0]:
@@ -56,11 +70,11 @@ class Trainer:
 			print("\nCompleted in", int((time.time() - start_total) / 60), "minutes.")
 			print("Final loss:", loss.item())
 		
-	def PrintUpdate(self, epochs, e, avg_time, loss):
+	def PrintUpdate(self, epochs, e, p, avg_time, loss):
 
 		remaining_epochs = epochs - e
 
-		if self.ShouldPrint_E(epochs, e):
+		if self.ShouldPrint_E(epochs, e, p):
 			eta = avg_time * remaining_epochs
 			eta = eta / 60
 			eta = "{:.2f}".format(eta)
@@ -76,8 +90,8 @@ class Trainer:
 			print("    ETA	      :", eta, "mins")
 			print("\n")
 
-	def ShouldPrint_E(self, epochs, e):
-		if epochs < CONFIG.print_every_epoch:
+	def ShouldPrint_E(self, epochs, e, p):
+		if epochs < p:
 			return True
 
-		return e % CONFIG.print_every_epoch == 0 or e == epochs - 1
+		return e % p == 0 or e == epochs - 1

@@ -3,7 +3,7 @@ import numpy as np
 
 import CONFIG
 
-class ModelLinear(torch.nn.Module):
+class ModelLinearNorm(torch.nn.Module):
 	def __init__(self):
 		super().__init__()
 
@@ -14,20 +14,29 @@ class ModelLinear(torch.nn.Module):
 		
 		self.out_layer = torch.nn.Linear(64, 1).cuda()
 		
+		self.b00 = torch.nn.BatchNorm1d(256)
+		self.b01 = torch.nn.BatchNorm1d(256)
+		self.b02 = torch.nn.BatchNorm1d(64)
+		self.b03 = torch.nn.BatchNorm1d(64)
+		
 		self.activation = torch.nn.ReLU()
 
 	def forward(self, data):
 		
 		out = self.e00(data)
+		out = self.b00(out)
 		out = self.activation(out)
 		
 		out = self.e01(out)
+		out = self.b01(out)
 		out = self.activation(out)
 		
 		out = self.e02(out)
+		out = self.b02(out)
 		out = self.activation(out)
 		
 		out = self.e03(out)
+		out = self.b03(out)
 		out = self.activation(out)
 		
 		out = self.out_layer(out)

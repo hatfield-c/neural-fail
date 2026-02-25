@@ -16,17 +16,24 @@ possible_actions_list = list(possible_actions.keys())
 
 model_base_path = "data/models/"
 
-learning_rate = 1e-3
-
 img_size = np.array([64, 256])
 
-epochs = 1000
 batch_size = 64
-
-print_every_epoch = 1000
 
 ############################
 #	PIPELINES
 ############################
 
-linear_pipeline = Pipeline.Pipeline("linear", [[103, 103], [47, 156]])
+ablations = [[103, 103], [83, 123], [23, 183]]
+
+linear_pipeline = Pipeline.Pipeline("linear", 1e-3, 10000, 1000, ablations)
+linear_norm_pipeline = Pipeline.Pipeline("linear_norm", 1e-3, 10000, 1000, ablations)
+vgg16_pipeline = Pipeline.Pipeline("vgg16", 1e-5, 1000, 100, ablations)
+deepset_pipeline = Pipeline.Pipeline("deepset", 1e-3, 1000, 100, ablations)
+
+pipelines = {
+	linear_pipeline.model_id: linear_pipeline,
+	linear_norm_pipeline.model_id: linear_norm_pipeline,
+	vgg16_pipeline.model_id: vgg16_pipeline,
+	deepset_pipeline.model_id: deepset_pipeline,
+}

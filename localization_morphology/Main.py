@@ -5,6 +5,7 @@ import CONFIG
 
 import DataCompiler
 import Trainer
+import Tester
 
 def GetCliAction():
 	print("")
@@ -47,11 +48,11 @@ def Main():
 
 	if action == actions["train"]:
 		trainer = Trainer.Trainer()
-		trainer.Train(CONFIG.epochs)
+		trainer.Train(model_id)
 		
-	#if action == actions["graph_results"]:
-	#	grapher = Grapher.Grapher(group)
-	#	grapher.Graph()
+	if action == actions["test"]:
+		tester = Tester.Tester()
+		tester.Test()
 
 	runtime = time.time() - start_time
 	runtime = "{:.2f}".format(runtime)

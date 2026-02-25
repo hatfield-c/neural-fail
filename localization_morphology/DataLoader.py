@@ -31,8 +31,12 @@ class DataLoader:
 		self.valid_indices = torch.arange(self.imgs.shape[0])
 		
 	def DrawSamples(self, sample_count):
-		indices = torch.randint(0, self.valid_indices.shape[0], (sample_count,))
-		indices = self.valid_indices[indices]
+		#indices = torch.randint(0, self.valid_indices.shape[0], (sample_count,))
+		#indices = self.valid_indices[indices]
+		indices = self.valid_indices[:46]
+		
+		#indices = torch.arange(0, 64)
+		sample_count = indices.shape[0]
 		
 		imgs = self.imgs[indices].reshape(sample_count, -1)
 		poses = self.poses[indices].reshape(sample_count, 1)
