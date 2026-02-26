@@ -100,7 +100,7 @@ class ModelDeepSet(torch.nn.Module):
 			if i != self.decoder_depth - 1:
 				#out = norm(out)
 				out = self.activation(out)
-		
+			
 		return out
 	
 	def Save(self, save_path):

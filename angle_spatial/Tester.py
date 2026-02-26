@@ -12,6 +12,8 @@ class Tester:
 	
 	def Test(self):
 		loader = DataLoader.DataLoader()
+		p_min = ((loader.poses[0] + 0.5) * 180)
+		p_max = ((loader.poses[-1] + 0.5) * 180)
 		
 		for a in range(len(CONFIG.ablations)):
 			
@@ -24,22 +26,22 @@ class Tester:
 			upper = ablation[1]
 			lower = loader.poses[lower]
 			upper = loader.poses[upper]
-			lower = (lower * 255).int()
-			upper = (upper * 255).int()
+			lower = ((lower + 0.5) * 180).int()
+			upper = ((upper + 0.5) * 180).int()
 			
 			fig, ax = plt.subplots()
 			fig1, ax1 = plt.subplots()
 			
 			ax.axvspan(lower, upper, alpha=0.2)
-			ax.set_xlim([20, CONFIG.img_size[1] - 20])
-			ax.set_ylim([-10, 128])
+			ax.set_xlim([p_min, p_max])
+			ax.set_ylim([p_min, p_max])
 			ax.set_xlabel("True Position")
 			ax.set_ylabel("Prediction Error")
 			ax.set_title("Translation Error")
 			
 			ax1.axvspan(lower, upper, alpha=0.2)
-			ax1.set_xlim([20, CONFIG.img_size[1] - 20])
-			ax1.set_ylim([-10, 266])
+			ax1.set_xlim([p_min, p_max])
+			ax1.set_ylim([p_min, p_max])
 			ax1.set_xlabel("True Position")
 			ax1.set_ylabel("Predicted Position")
 			ax1.set_title("Translation Path")
@@ -60,8 +62,8 @@ class Tester:
 				
 				poses = model(loader.imgs.reshape(loader.imgs.shape[0], -1).cuda())
 
-				poses = (poses.detach().cpu() * 255).int()
-				truth = (loader.poses.detach().cpu() * 255).int()
+				poses = ((poses.detach().cpu() + 0.5) * 180).int()
+				truth = ((loader.poses.detach().cpu() + 0.5) * 180).int()
 				poses = poses[:, 0]
 				
 				perror = torch.abs(poses - truth)
