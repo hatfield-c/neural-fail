@@ -63,6 +63,11 @@ class ModelDeepSet(torch.nn.Module):
 		
 		self.decoder_linears = []
 		self.decoder_norms = []
+		self.decoder_norms = []
+		self.decoder_norm_means = []
+		self.decoder_norm_vars = []
+		self.decoder_norm_weights = []
+		self.decoder_norm_bias = []
 		for i in range(depth):
 			insize = nodes
 			outsize = nodes
@@ -74,11 +79,25 @@ class ModelDeepSet(torch.nn.Module):
 				outsize = exit_size
 				
 			linear = torch.nn.Linear(insize, outsize).cuda()
-			norm = torch.nn.BatchNorm1d(outsize)
 			
 			self.decoder_linears.append(linear)
 			if i < depth - 1:
+				norm = torch.nn.BatchNorm1d(outsize)
+				norm_means = torch.zeros(outsize).cuda()
+				norm_vars = torch.zeros(outsize).cuda()
+				norm_weights = torch.zeros(outsize).cuda()
+				norm_bias = torch.zeros(outsize).cuda()
+				
+				self.register_buffer("decoder_norm_means" + str(i), norm_means)
+				self.register_buffer("decoder_norm_vars" + str(i), norm_vars)
+				self.register_buffer("decoder_norm_weights" + str(i), norm_weights)
+				self.register_buffer("decoder_norm_bias" + str(i), norm_bias)
+				
 				self.decoder_norms.append(norm)
+				self.decoder_norm_means.append(norm_means)
+				self.decoder_norm_vars.append(norm_vars)
+				self.decoder_norm_weights.append(norm_weights)
+				self.decoder_norm_bias.append(norm_bias)
 			
 		self.decoder_linears = torch.nn.ModuleList(self.decoder_linears)
 		self.decoder_norms = torch.nn.ModuleList(self.decoder_norms)
@@ -141,7 +160,28 @@ class ModelDeepSet(torch.nn.Module):
 			
 			if i != self.decoder_depth - 1:
 				norm = self.decoder_norms[i]
-				out = norm(out)
+				
+				if is_train:
+					if is_bake:
+						norm_means = out.mean(0)
+						norm_vars = out.var(0)
+						norm_weights = norm.weight
+						norm_bias = norm.bias
+						
+						self.decoder_norm_means[i] += norm_means[:].detach()
+						self.decoder_norm_vars[i] += norm_vars[:].detach()
+						self.decoder_norm_weights[i] += norm_weights[:]
+						self.decoder_norm_bias[i] += norm_bias[:]
+					
+					out = norm(out)
+				else:
+					norm_means = self.decoder_norm_means[i]
+					norm_vars = self.decoder_norm_vars[i]
+					norm_weights = self.decoder_norm_weights[i]
+					norm_bias = self.decoder_norm_bias[i]
+					
+					out = (out - norm_means.view(1, -1)) / torch.sqrt(norm_vars.view(1, -1) + norm.eps)
+					out = (out * norm_weights.view(1, -1)) + norm_bias.view(1, -1)
 				out = self.activation(out)
 			
 		return out

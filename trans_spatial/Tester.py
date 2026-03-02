@@ -53,7 +53,6 @@ class Tester:
 				try:
 					model = pipeline.model_type().cuda()
 					model.Load(CONFIG.model_base_path + pipeline.model_id + "_a" + str(a) + ".pt")
-					
 				except:
 					print("Model not found:", CONFIG.model_base_path + pipeline.model_id + "_a" + str(a) + ".pt")
 					continue

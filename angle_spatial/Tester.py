@@ -65,7 +65,7 @@ class Tester:
 				a_imgs = loader.imgs[loader.valid_indices]
 				a_poses = loader.poses[loader.valid_indices]
 				
-				poses = model(a_imgs.reshape(a_imgs.shape[0], -1).cuda())
+				poses = model(a_imgs.reshape(a_imgs.shape[0], -1).cuda(), False, False)
 				
 				print(poses[0].cpu().detach().numpy(), a_poses[0].cpu().numpy())
 
