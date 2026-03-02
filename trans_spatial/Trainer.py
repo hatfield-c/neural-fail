@@ -39,12 +39,15 @@ class Trainer:
 		
 				img, pose = loader.DrawSamples(CONFIG.batch_size)
 				
+				preds = None
 				if e == pipeline.epochs:
-					#model.eval()
-					#model.train()
+					preds = model(img, True, True)
+					print("Fresh Baked:", preds[0].cpu().detach().numpy(), pose[0].cpu().numpy())
 					model.Save(CONFIG.model_base_path + pipeline.model_id + "_a" + str(a) + ".pt")
-				
-				preds = model(img)
+					preds = model(img.detach(), False, False)
+					print("Stale Baked:", preds[0].cpu().detach().numpy(), pose[0].cpu().numpy())
+				else:
+					preds = model(img, True, False)
 		
 				loss = losser(preds, pose)
 		
