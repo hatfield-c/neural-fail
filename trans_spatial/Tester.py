@@ -15,8 +15,8 @@ class Tester:
 		
 		for a in range(len(CONFIG.ablations)):
 			
-			if a != 2:
-				continue
+			#if a != 2:
+			#	continue
 			
 			ablation = CONFIG.ablations[a]
 			
@@ -47,8 +47,8 @@ class Tester:
 			for model_id in CONFIG.pipelines:
 				pipeline = CONFIG.pipelines[model_id]
 				
-				if pipeline.model_id != "deepset":
-					continue
+				#if pipeline.model_id != "deepset":
+				#	continue
 				
 				try:
 					model = pipeline.model_type().cuda()

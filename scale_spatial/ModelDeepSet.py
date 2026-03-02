@@ -8,15 +8,19 @@ class ModelDeepSet(torch.nn.Module):
 		super().__init__()
 
 		self.set_size = CONFIG.img_size[0] * CONFIG.img_size[1]
-		self.embed_size = 16
+		self.embed_size = 32
 
-		nodes = 16
-		depth = 3
+		nodes = 32
+		depth = 2
 		entry_size = 5
 		exit_size = self.embed_size
 
 		self.encoder_linears = []
 		self.encoder_norms = []
+		self.encoder_norm_means = []
+		self.encoder_norm_vars = []
+		self.encoder_norm_weights = []
+		self.encoder_norm_bias = []
 		for i in range(depth):
 			insize = nodes
 			outsize = nodes
@@ -28,10 +32,25 @@ class ModelDeepSet(torch.nn.Module):
 				outsize = exit_size
 				
 			linear = torch.nn.Linear(insize, outsize).cuda()
-			norm = torch.nn.BatchNorm1d(outsize)
 			
 			self.encoder_linears.append(linear)
-			self.encoder_norms.append(norm)
+			if i < depth - 1:
+				norm = torch.nn.BatchNorm1d(outsize)
+				norm_means = torch.zeros(outsize).cuda()
+				norm_vars = torch.zeros(outsize).cuda()
+				norm_weights = torch.zeros(outsize).cuda()
+				norm_bias = torch.zeros(outsize).cuda()
+				
+				self.register_buffer("encoder_norm_means" + str(i), norm_means)
+				self.register_buffer("encoder_norm_vars" + str(i), norm_vars)
+				self.register_buffer("encoder_norm_weights" + str(i), norm_weights)
+				self.register_buffer("encoder_norm_bias" + str(i), norm_bias)
+				
+				self.encoder_norms.append(norm)
+				self.encoder_norm_means.append(norm_means)
+				self.encoder_norm_vars.append(norm_vars)
+				self.encoder_norm_weights.append(norm_weights)
+				self.encoder_norm_bias.append(norm_bias)
 			
 		self.encoder_linears = torch.nn.ModuleList(self.encoder_linears)
 		self.encoder_norms = torch.nn.ModuleList(self.encoder_norms)
@@ -39,11 +58,16 @@ class ModelDeepSet(torch.nn.Module):
 
 		entry_size = exit_size
 		exit_size = 1
-		nodes = 16
-		depth = 5
+		nodes = 32
+		depth = 2
 		
 		self.decoder_linears = []
 		self.decoder_norms = []
+		self.decoder_norms = []
+		self.decoder_norm_means = []
+		self.decoder_norm_vars = []
+		self.decoder_norm_weights = []
+		self.decoder_norm_bias = []
 		for i in range(depth):
 			insize = nodes
 			outsize = nodes
@@ -55,10 +79,25 @@ class ModelDeepSet(torch.nn.Module):
 				outsize = exit_size
 				
 			linear = torch.nn.Linear(insize, outsize).cuda()
-			norm = torch.nn.BatchNorm1d(outsize)
 			
 			self.decoder_linears.append(linear)
-			self.decoder_norms.append(norm)
+			if i < depth - 1:
+				norm = torch.nn.BatchNorm1d(outsize)
+				norm_means = torch.zeros(outsize).cuda()
+				norm_vars = torch.zeros(outsize).cuda()
+				norm_weights = torch.zeros(outsize).cuda()
+				norm_bias = torch.zeros(outsize).cuda()
+				
+				self.register_buffer("decoder_norm_means" + str(i), norm_means)
+				self.register_buffer("decoder_norm_vars" + str(i), norm_vars)
+				self.register_buffer("decoder_norm_weights" + str(i), norm_weights)
+				self.register_buffer("decoder_norm_bias" + str(i), norm_bias)
+				
+				self.decoder_norms.append(norm)
+				self.decoder_norm_means.append(norm_means)
+				self.decoder_norm_vars.append(norm_vars)
+				self.decoder_norm_weights.append(norm_weights)
+				self.decoder_norm_bias.append(norm_bias)
 			
 		self.decoder_linears = torch.nn.ModuleList(self.decoder_linears)
 		self.decoder_norms = torch.nn.ModuleList(self.decoder_norms)
@@ -71,20 +110,43 @@ class ModelDeepSet(torch.nn.Module):
 		self.grid_list = self.img_grid.reshape(-1, 2).cuda()
 
 	def Radial(self, out):
-		return torch.exp((-1) * torch.square(out - 1) / 2)
+		return torch.exp((-0.5) * torch.square(out - 1))
 
-	def forward(self, data):
+	# PyTorch's batchnorm has unstable behavior when using either train or eval modes for inference on variable sized batches.
+	# So after training, we capture and store (i.e. bake) the correct batchnorm parameters in last epoch for use during inference.
+	def forward(self, data, is_train = False, is_bake = False):
 		batch_size = data.shape[0]
 		out = data.view(batch_size * self.set_size, 3)
 		out = torch.concatenate((out, self.grid_list.repeat(batch_size, 1)), dim = 1)
 
 		for i in range(self.encoder_depth):
 			linear = self.encoder_linears[i]
-			norm = self.encoder_norms[i]
 			
 			out = linear(out)
 			if i != self.encoder_depth - 1:
-				#out = norm(out)
+				norm = self.encoder_norms[i]
+				
+				if is_train:
+					if is_bake:
+						norm_means = out.mean(0)
+						norm_vars = out.var(0)
+						norm_weights = norm.weight
+						norm_bias = norm.bias
+						
+						self.encoder_norm_means[i] += norm_means[:].detach()
+						self.encoder_norm_vars[i] += norm_vars[:].detach()
+						self.encoder_norm_weights[i] += norm_weights[:]
+						self.encoder_norm_bias[i] += norm_bias[:]
+					
+					out = norm(out)
+				else:
+					norm_means = self.encoder_norm_means[i]
+					norm_vars = self.encoder_norm_vars[i]
+					norm_weights = self.encoder_norm_weights[i]
+					norm_bias = self.encoder_norm_bias[i]
+					
+					out = (out - norm_means.view(1, -1)) / torch.sqrt(norm_vars.view(1, -1) + norm.eps)
+					out = (out * norm_weights.view(1, -1)) + norm_bias.view(1, -1)
 				out = self.activation(out)
 		
 		out = out.view(batch_size, self.set_size, self.embed_size)
@@ -93,12 +155,33 @@ class ModelDeepSet(torch.nn.Module):
 		
 		for i in range(self.decoder_depth):
 			linear = self.decoder_linears[i]
-			norm = self.decoder_norms[i]
 			
 			out = linear(out)
 			
 			if i != self.decoder_depth - 1:
-				#out = norm(out)
+				norm = self.decoder_norms[i]
+				
+				if is_train:
+					if is_bake:
+						norm_means = out.mean(0)
+						norm_vars = out.var(0)
+						norm_weights = norm.weight
+						norm_bias = norm.bias
+						
+						self.decoder_norm_means[i] += norm_means[:].detach()
+						self.decoder_norm_vars[i] += norm_vars[:].detach()
+						self.decoder_norm_weights[i] += norm_weights[:]
+						self.decoder_norm_bias[i] += norm_bias[:]
+					
+					out = norm(out)
+				else:
+					norm_means = self.decoder_norm_means[i]
+					norm_vars = self.decoder_norm_vars[i]
+					norm_weights = self.decoder_norm_weights[i]
+					norm_bias = self.decoder_norm_bias[i]
+					
+					out = (out - norm_means.view(1, -1)) / torch.sqrt(norm_vars.view(1, -1) + norm.eps)
+					out = (out * norm_weights.view(1, -1)) + norm_bias.view(1, -1)
 				out = self.activation(out)
 			
 		return out
@@ -110,7 +193,6 @@ class ModelDeepSet(torch.nn.Module):
 
 	def Load(self, load_path):
 		self.load_state_dict(torch.load(load_path))
-		self.eval()
 
 		print("\nLoaded model from", load_path)
 

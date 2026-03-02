@@ -24,12 +24,12 @@ batch_size = 64
 #	PIPELINES
 ############################
 
-ablations = [[45, 45], [30, 60], [20, 70]]
+ablations = [[49, 49], [40, 60], [20, 80]]
 
-linear_pipeline = Pipeline.Pipeline("linear", 1e-3, 10000, 1000, ablations)
-linear_norm_pipeline = Pipeline.Pipeline("linear_norm", 1e-3, 10000, 1000, ablations)
-vgg16_pipeline = Pipeline.Pipeline("vgg16", 1e-5, 1000, 100, ablations)
-deepset_pipeline = Pipeline.Pipeline("deepset", 1e-3, 2000, 100, ablations)
+linear_pipeline = Pipeline.Pipeline("linear", 1e-3, 1000, 100, ablations)
+linear_norm_pipeline = Pipeline.Pipeline("linear_norm", 1e-3, 1000, 100, ablations)
+vgg16_pipeline = Pipeline.Pipeline("vgg16", 1e-5, 1000, 10, ablations)
+deepset_pipeline = Pipeline.Pipeline("deepset", 1e-3, 1000, 100, ablations)
 
 pipelines = {
 	linear_pipeline.model_id: linear_pipeline,

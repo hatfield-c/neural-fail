@@ -20,9 +20,9 @@ class Trainer:
 		start_total = time.time()
 		
 		for a in range(pipeline.ablation_count):
-			
-			if a != 2:
-				continue
+			print("Beggining ablation", a)
+			#if a != 2:
+			#	continue
 			
 			losser = pipeline.losser_type()
 			model = pipeline.model_type().cuda()

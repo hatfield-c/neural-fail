@@ -21,8 +21,8 @@ class Trainer:
 		
 		for a in range(pipeline.ablation_count):
 			
-			if a != 2:
-				continue
+			#if a != 2:
+			#	continue
 			
 			losser = pipeline.losser_type()
 			model = pipeline.model_type().cuda()
@@ -39,13 +39,22 @@ class Trainer:
 		
 				img, pose = loader.DrawSamples(CONFIG.batch_size)
 				
-				preds = model(img)
-				
+				preds = None
+				if e == pipeline.epochs:
+					preds = model(img, True, True)
+					print("Fresh Baked:", preds[0].cpu().detach().numpy(), pose[0].cpu().numpy())
+					model.Save(CONFIG.model_base_path + pipeline.model_id + "_a" + str(a) + ".pt")
+					preds = model(img.detach(), False, False)
+					print("Stale Baked:", preds[0].cpu().detach().numpy(), pose[0].cpu().numpy())
+				else:
+					preds = model(img, True, False)
+		
 				loss = losser(preds, pose)
-				
-				optimizer.zero_grad()
-				loss.backward()
-				optimizer.step()
+		
+				if e < pipeline.epochs + 1:
+					optimizer.zero_grad()
+					loss.backward()
+					optimizer.step()
 				
 				if e == 0:
 					avg_time = (time.time() - start_time) / 7
@@ -56,12 +65,6 @@ class Trainer:
 					print(preds[0].cpu().detach().numpy(), pose[0].cpu().numpy())
 				
 				avg_time = (avg_time + (time.time() - start_time)) / 2
-				
-				#if e == save_snapshots[0]:
-				#	model.Save(pipeline.model_base_path + "/" + pipeline.pipeline_id + "_e" + str(e) + ".pt")
-				#	save_snapshots.pop(0)
-		
-			model.Save(CONFIG.model_base_path + pipeline.model_id + "_a" + str(a) + ".pt")
 		
 			print("\nCompleted in", int((time.time() - start_total) / 60), "minutes.")
 			print("Final loss:", loss.item())

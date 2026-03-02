@@ -32,7 +32,7 @@ class ModelVgg16(torch.nn.Module):
 		self.activation = torch.nn.ReLU()
 		self.maxpool = torch.nn.MaxPool2d(2)
 
-	def forward(self, data):
+	def forward(self, data, dumm0, dumm1):
 		data = data.reshape(-1, CONFIG.img_size[0], CONFIG.img_size[1], 3)
 		data = torch.moveaxis(data, 3, 1)
 		

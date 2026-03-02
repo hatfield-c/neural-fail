@@ -16,7 +16,7 @@ class ModelLinear(torch.nn.Module):
 		
 		self.activation = torch.nn.ReLU()
 
-	def forward(self, data):
+	def forward(self, data, dumm0, dumm1):
 		
 		out = self.e00(data)
 		out = self.activation(out)

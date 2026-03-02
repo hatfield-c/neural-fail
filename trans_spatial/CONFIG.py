@@ -26,9 +26,9 @@ batch_size = 64
 
 ablations = [[103, 103], [83, 123], [23, 183]]
 
-linear_pipeline = Pipeline.Pipeline("linear", 1e-3, 10000, 1000, ablations)
-linear_norm_pipeline = Pipeline.Pipeline("linear_norm", 1e-3, 10000, 1000, ablations)
-vgg16_pipeline = Pipeline.Pipeline("vgg16", 1e-5, 1000, 100, ablations)
+linear_pipeline = Pipeline.Pipeline("linear", 1e-3, 1000, 100, ablations)
+linear_norm_pipeline = Pipeline.Pipeline("linear_norm", 1e-3, 1000, 100, ablations)
+vgg16_pipeline = Pipeline.Pipeline("vgg16", 1e-5, 1000, 10, ablations)
 deepset_pipeline = Pipeline.Pipeline("deepset", 1e-3, 1000, 100, ablations)
 
 pipelines = {

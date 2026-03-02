@@ -12,13 +12,11 @@ class Tester:
 	
 	def Test(self):
 		loader = DataLoader.DataLoader()
-		p_min = ((loader.poses[0] + 0.5) * 180)
-		p_max = ((loader.poses[-1] + 0.5) * 180)
 		
 		for a in range(len(CONFIG.ablations)):
 			
-			if a != 2:
-				continue
+			#if a != 2:
+			#	continue
 			
 			ablation = CONFIG.ablations[a]
 			
@@ -26,44 +24,49 @@ class Tester:
 			upper = ablation[1]
 			lower = loader.poses[lower]
 			upper = loader.poses[upper]
-			lower = ((lower + 0.5) * 180).int()
-			upper = ((upper + 0.5) * 180).int()
+			lower = (lower * 99).int()
+			upper = (upper * 99).int()
 			
 			fig, ax = plt.subplots()
 			fig1, ax1 = plt.subplots()
 			
 			ax.axvspan(lower, upper, alpha=0.2)
-			ax.set_xlim([p_min, p_max])
-			ax.set_ylim([p_min, p_max])
-			ax.set_xlabel("True Position")
+			ax.set_xlim([-10, 110])
+			ax.set_ylim([-10, 110])
+			ax.set_xlabel("True Scale")
 			ax.set_ylabel("Prediction Error")
-			ax.set_title("Translation Error")
+			ax.set_title("Scale Error")
 			
 			ax1.axvspan(lower, upper, alpha=0.2)
-			ax1.set_xlim([p_min, p_max])
-			ax1.set_ylim([p_min, p_max])
-			ax1.set_xlabel("True Position")
-			ax1.set_ylabel("Predicted Position")
-			ax1.set_title("Translation Path")
+			ax1.set_xlim([-10, 110])
+			ax1.set_ylim([-10, 110])
+			ax1.set_xlabel("True Scale")
+			ax1.set_ylabel("Predicted Scale")
+			ax1.set_title("Scale Path")
 			
 			for model_id in CONFIG.pipelines:
 				pipeline = CONFIG.pipelines[model_id]
 				
+				#if pipeline.model_id != "deepset":
+				#	continue
+				
 				try:
 					model = pipeline.model_type().cuda()
 					model.Load(CONFIG.model_base_path + pipeline.model_id + "_a" + str(a) + ".pt")
-					model.eval()
-					
 				except:
 					print("Model not found:", CONFIG.model_base_path + pipeline.model_id + "_a" + str(a) + ".pt")
 					continue
 				
-				pipeline.Ablate(a, loader)
+				#pipeline.Ablate(a, loader)
+				a_imgs = loader.imgs[loader.valid_indices]
+				a_poses = loader.poses[loader.valid_indices]
 				
-				poses = model(loader.imgs.reshape(loader.imgs.shape[0], -1).cuda())
+				poses = model(a_imgs.reshape(a_imgs.shape[0], -1).cuda(), False, False)
+				
+				print(poses[0].cpu().detach().numpy(), a_poses[0].cpu().numpy())
 
-				poses = ((poses.detach().cpu() + 0.5) * 180).int()
-				truth = ((loader.poses.detach().cpu() + 0.5) * 180).int()
+				poses = (poses.detach().cpu() * 99).int()
+				truth = (a_poses.detach().cpu() * 99).int()
 				poses = poses[:, 0]
 				
 				perror = torch.abs(poses - truth)

@@ -19,10 +19,10 @@ class DataLoader:
 			p = int(img_name[:-4])
 			
 			img = img / 255.0
-			p = p / 180.0
+			p = p / 99.0
 			
-			imgs.append(img - 0.5)
-			poses.append(p - 0.5)
+			imgs.append(img)
+			poses.append(p)
 			
 		imgs = np.stack(imgs)
 		poses = np.stack(poses)
@@ -31,16 +31,14 @@ class DataLoader:
 		self.poses = torch.FloatTensor(poses)
 		self.valid_indices = torch.arange(self.imgs.shape[0])
 		
-	def DrawSamples(self, sample_count):
-		#sample_count = min(sample_count, len(self.valid_indices))
+	def DrawSamples(self, batch_size):
+		indices = self.valid_indices
 		
-		#indices = torch.randint(0, self.valid_indices.shape[0], (sample_count,))
-		#indices = random.sample(list(self.valid_indices), sample_count)
-		#indices = self.valid_indices[indices]
-		indices = self.valid_indices#[:10]
+		#if batch_size > 0:
+		#	indices = torch.randint(0, self.valid_indices.shape[0], (batch_size,))
+		#	indices = self.valid_indices[indices]
 		
-		#indices = torch.arange(0, 64)
-		sample_count = len(indices)
+		sample_count = indices.shape[0]
 		
 		imgs = self.imgs[indices].reshape(sample_count, -1)
 		poses = self.poses[indices].reshape(sample_count, 1)
