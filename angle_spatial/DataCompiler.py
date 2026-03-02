@@ -11,7 +11,7 @@ class DataCompiler:
 		
 		for i in range(0, 182, 2):
 			canvas = self.GenerateSample(i)
-			cv2.imwrite("data/in/" + str(i).zfill(4) + ".jpg", canvas)
+			cv2.imwrite("data/in/" + str(i).zfill(4) + ".png", canvas)
 		
 	def GenerateSample(self, theta):
 		canvas = np.zeros((CONFIG.img_size[0], CONFIG.img_size[1], 3))

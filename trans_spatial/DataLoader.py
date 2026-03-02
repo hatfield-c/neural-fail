@@ -33,7 +33,7 @@ class DataLoader:
 	def DrawSamples(self, sample_count):
 		#indices = torch.randint(0, self.valid_indices.shape[0], (sample_count,))
 		#indices = self.valid_indices[indices]
-		indices = self.valid_indices[:46]
+		indices = self.valid_indices#[:46]
 		
 		#indices = torch.arange(0, 64)
 		sample_count = indices.shape[0]

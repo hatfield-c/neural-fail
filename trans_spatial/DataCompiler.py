@@ -12,7 +12,7 @@ class DataCompiler:
 		for i in range(24, 232):
 			centroid = np.array([i, 32])
 			canvas = self.GenerateSample(centroid)
-			cv2.imwrite("data/in/" + str(i).zfill(4) + ".jpg", canvas)
+			cv2.imwrite("data/in/" + str(i).zfill(4) + ".png", canvas)
 		
 	def GenerateSample(self, centroid):
 		canvas = np.zeros((CONFIG.img_size[0], CONFIG.img_size[1], 3))

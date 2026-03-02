@@ -16,7 +16,7 @@ possible_actions_list = list(possible_actions.keys())
 
 model_base_path = "data/models/"
 
-img_size = np.array([128, 128])
+img_size = np.array([64, 256])
 
 batch_size = 64
 
@@ -24,7 +24,7 @@ batch_size = 64
 #	PIPELINES
 ############################
 
-ablations = [[45, 45], [30, 60], [20, 70]]
+ablations = [[103, 103], [83, 123], [23, 183]]
 
 linear_pipeline = Pipeline.Pipeline("linear", 1e-3, 10000, 1000, ablations)
 linear_norm_pipeline = Pipeline.Pipeline("linear_norm", 1e-3, 10000, 1000, ablations)

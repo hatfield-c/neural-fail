@@ -28,7 +28,7 @@ class ModelDeepSet(torch.nn.Module):
 				outsize = exit_size
 				
 			linear = torch.nn.Linear(insize, outsize).cuda()
-			norm = torch.nn.BatchNorm1d(outsize, track_running_stats = False)
+			norm = torch.nn.BatchNorm1d(outsize, track_running_stats = True, affine = True, momentum = 1)
 			
 			self.encoder_linears.append(linear)
 			if i < depth - 1:
@@ -56,7 +56,7 @@ class ModelDeepSet(torch.nn.Module):
 				outsize = exit_size
 				
 			linear = torch.nn.Linear(insize, outsize).cuda()
-			norm = torch.nn.BatchNorm1d(outsize, track_running_stats = False)
+			norm = torch.nn.BatchNorm1d(outsize, track_running_stats = True, affine = True, momentum = 1)
 			
 			self.decoder_linears.append(linear)
 			if i < depth - 1:
@@ -66,11 +66,14 @@ class ModelDeepSet(torch.nn.Module):
 		self.decoder_norms = torch.nn.ModuleList(self.decoder_norms)
 		self.decoder_depth = depth
 
-		self.activation = torch.nn.ReLU()
-		#self.activation = self.Radial
+		#self.activation = torch.nn.ReLU()
+		self.activation = self.Radial
 		
 		self.img_grid = self.ImageGrid(CONFIG.img_size[0], CONFIG.img_size[1])
 		self.grid_list = self.img_grid.reshape(-1, 2).cuda()
+
+	def P(self):
+		print(self.decoder_norms[0])
 
 	def Radial(self, out):
 		return torch.exp((-0.5) * torch.square(out - 1))

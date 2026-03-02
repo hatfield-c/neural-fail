@@ -47,21 +47,32 @@ class Tester:
 			for model_id in CONFIG.pipelines:
 				pipeline = CONFIG.pipelines[model_id]
 				
+				if pipeline.model_id != "deepset":
+					continue
+				
 				try:
 					model = pipeline.model_type().cuda()
 					model.Load(CONFIG.model_base_path + pipeline.model_id + "_a" + str(a) + ".pt")
-					model.eval()
+					
+					#model.train()
 					
 				except:
 					print("Model not found:", CONFIG.model_base_path + pipeline.model_id + "_a" + str(a) + ".pt")
 					continue
 				
-				pipeline.Ablate(a, loader)
+				#pipeline.Ablate(a, loader)
+				a_imgs = loader.imgs[loader.valid_indices]
+				a_poses = loader.poses[loader.valid_indices]
 				
-				poses = model(loader.imgs.reshape(loader.imgs.shape[0], -1).cuda())
+				#model.P()
+				model.train()
+				#model.eval()
+				poses = model(a_imgs.reshape(a_imgs.shape[0], -1).cuda())
+				
+				print(poses[0].cpu().detach().numpy(), a_poses[0].cpu().numpy())
 
 				poses = (poses.detach().cpu() * 255).int()
-				truth = (loader.poses.detach().cpu() * 255).int()
+				truth = (a_poses.detach().cpu() * 255).int()
 				poses = poses[:, 0]
 				
 				perror = torch.abs(poses - truth)

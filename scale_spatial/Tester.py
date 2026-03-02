@@ -35,22 +35,19 @@ class Tester:
 			ax.axvspan(lower, upper, alpha=0.2)
 			ax.set_xlim([p_min, p_max])
 			ax.set_ylim([p_min, p_max])
-			ax.set_xlabel("True Angle")
+			ax.set_xlabel("True Position")
 			ax.set_ylabel("Prediction Error")
-			ax.set_title("Angle Error")
+			ax.set_title("Translation Error")
 			
 			ax1.axvspan(lower, upper, alpha=0.2)
 			ax1.set_xlim([p_min, p_max])
 			ax1.set_ylim([p_min, p_max])
-			ax1.set_xlabel("True Angle")
-			ax1.set_ylabel("Predicted Angle")
-			ax1.set_title("Angle Path")
+			ax1.set_xlabel("True Position")
+			ax1.set_ylabel("Predicted Position")
+			ax1.set_title("Translation Path")
 			
 			for model_id in CONFIG.pipelines:
 				pipeline = CONFIG.pipelines[model_id]
-				
-				if pipeline.model_id != "deepset":
-					continue
 				
 				try:
 					model = pipeline.model_type().cuda()
@@ -61,16 +58,12 @@ class Tester:
 					print("Model not found:", CONFIG.model_base_path + pipeline.model_id + "_a" + str(a) + ".pt")
 					continue
 				
-				#pipeline.Ablate(a, loader)
-				a_imgs = loader.imgs[loader.valid_indices]
-				a_poses = loader.poses[loader.valid_indices]
+				pipeline.Ablate(a, loader)
 				
-				poses = model(a_imgs.reshape(a_imgs.shape[0], -1).cuda())
-				
-				print(poses[0].cpu().detach().numpy(), a_poses[0].cpu().numpy())
+				poses = model(loader.imgs.reshape(loader.imgs.shape[0], -1).cuda())
 
 				poses = ((poses.detach().cpu() + 0.5) * 180).int()
-				truth = ((a_poses.detach().cpu() + 0.5) * 180).int()
+				truth = ((loader.poses.detach().cpu() + 0.5) * 180).int()
 				poses = poses[:, 0]
 				
 				perror = torch.abs(poses - truth)

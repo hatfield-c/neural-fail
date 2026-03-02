@@ -40,12 +40,14 @@ class Trainer:
 				img, pose = loader.DrawSamples(CONFIG.batch_size)
 				
 				if e == pipeline.epochs:
+					#model.eval()
+					#model.train()
 					model.Save(CONFIG.model_base_path + pipeline.model_id + "_a" + str(a) + ".pt")
 				
 				preds = model(img)
-				
+		
 				loss = losser(preds, pose)
-				
+		
 				if e < pipeline.epochs + 1:
 					optimizer.zero_grad()
 					loss.backward()
@@ -60,8 +62,6 @@ class Trainer:
 					print(preds[0].cpu().detach().numpy(), pose[0].cpu().numpy())
 				
 				avg_time = (avg_time + (time.time() - start_time)) / 2
-		
-			print("***")
 		
 			print("\nCompleted in", int((time.time() - start_total) / 60), "minutes.")
 			print("Final loss:", loss.item())

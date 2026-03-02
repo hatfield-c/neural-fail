@@ -38,10 +38,11 @@ class Trainer:
 				start_time = time.time()
 		
 				img, pose = loader.DrawSamples(CONFIG.batch_size)
+				
 				preds = model(img)
-		
+				
 				loss = losser(preds, pose)
-		
+				
 				optimizer.zero_grad()
 				loss.backward()
 				optimizer.step()
@@ -50,15 +51,10 @@ class Trainer:
 					avg_time = (time.time() - start_time) / 7
 				
 				self.PrintUpdate(pipeline.epochs, e, pipeline.print_every_epoch, avg_time, loss)
-				'''
+				
 				if e % pipeline.print_every_epoch == 0:
-					model.eval()
-					baseline = model(loader.imgs[[0]].reshape(1, -1).cuda())
-					berr = loader.poses[[0]] - baseline.detach().cpu() * 255
-					print("<", berr, ">")
-					optimizer.zero_grad()
-					model.train()
-				'''
+					print(preds[0].cpu().detach().numpy(), pose[0].cpu().numpy())
+				
 				avg_time = (avg_time + (time.time() - start_time)) / 2
 				
 				#if e == save_snapshots[0]:
