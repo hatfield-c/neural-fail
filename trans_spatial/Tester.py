@@ -15,8 +15,8 @@ class Tester:
 		
 		for a in range(len(CONFIG.ablations)):
 			
-			#if a != 2:
-			#	continue
+			if a != 2:
+				continue
 			
 			ablation = CONFIG.ablations[a]
 			
@@ -47,8 +47,8 @@ class Tester:
 			for model_id in CONFIG.pipelines:
 				pipeline = CONFIG.pipelines[model_id]
 				
-				#if pipeline.model_id != "deepset":
-				#	continue
+				if pipeline.model_id != "vit":
+					continue
 				
 				try:
 					model = pipeline.model_type().cuda()
@@ -62,6 +62,8 @@ class Tester:
 				a_poses = loader.poses[loader.valid_indices]
 				
 				poses = model(a_imgs.reshape(a_imgs.shape[0], -1).cuda(), False, False)
+				#model.eval()
+				#poses = model(a_imgs.reshape(a_imgs.shape[0], -1).cuda(), True, False)
 				
 				print(poses[0].cpu().detach().numpy(), a_poses[0].cpu().numpy())
 

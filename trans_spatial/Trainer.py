@@ -21,8 +21,8 @@ class Trainer:
 		
 		for a in range(pipeline.ablation_count):
 			print("Beggining ablation", a)
-			#if a != 2:
-			#	continue
+			if a != 2:
+				continue
 			
 			losser = pipeline.losser_type()
 			model = pipeline.model_type().cuda()
@@ -44,11 +44,12 @@ class Trainer:
 					preds = model(img, True, True)
 					print("Fresh Baked:", preds[0].cpu().detach().numpy(), pose[0].cpu().numpy())
 					model.Save(CONFIG.model_base_path + pipeline.model_id + "_a" + str(a) + ".pt")
+					#preds = model(img.detach(), True, False)
 					preds = model(img.detach(), False, False)
 					print("Stale Baked:", preds[0].cpu().detach().numpy(), pose[0].cpu().numpy())
 				else:
 					preds = model(img, True, False)
-		
+				
 				loss = losser(preds, pose)
 		
 				if e < pipeline.epochs + 1:

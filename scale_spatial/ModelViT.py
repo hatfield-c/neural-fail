@@ -3,9 +3,11 @@ import numpy as np
 
 import CONFIG
 
-class ModelLinear(torch.nn.Module):
+class ModelViT(torch.nn.Module):
 	def __init__(self):
 		super().__init__()
+
+		exit()
 
 		self.e00 = torch.nn.Linear(CONFIG.img_size[0] * CONFIG.img_size[1] * 3, 256).cuda()
 		self.e01 = torch.nn.Linear(256, 256).cuda()

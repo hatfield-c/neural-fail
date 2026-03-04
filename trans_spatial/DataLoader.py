@@ -4,7 +4,7 @@ import numpy as np
 import torch
 
 class DataLoader:
-	def __init__(self):
+	def __init__(self, is_ablate = False):
 		in_path = "data/in/"
 		
 		contents = os.listdir(in_path)
@@ -34,7 +34,8 @@ class DataLoader:
 		indices = self.valid_indices
 		
 		#if batch_size > 0:
-		#	indices = torch.randint(0, self.valid_indices.shape[0], (batch_size,))
+			#indices = torch.randint(0, self.valid_indices.shape[0], (batch_size,))
+		#	indices = np.random.choice(torch.arange(self.valid_indices.shape[0]), batch_size, replace = False)
 		#	indices = self.valid_indices[indices]
 		
 		sample_count = indices.shape[0]

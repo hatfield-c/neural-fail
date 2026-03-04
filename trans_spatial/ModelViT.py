@@ -1,36 +1,26 @@
 import torch
+import torchvision
 import numpy as np
+import cv2
 
 import CONFIG
 
-class ModelLinear(torch.nn.Module):
+class ModelViT(torch.nn.Module):
 	def __init__(self):
 		super().__init__()
+		
+		self.img_size = 128
+		self.patch_size = 8
+		self.depth = 4
+		self.output_size = 1
+		self.hidden_size = 32
+		self.mlp_size = 32
+		self.model = torchvision.models.vision_transformer.VisionTransformer(self.img_size, self.patch_size, self.depth, 16, self.hidden_size, self.mlp_size, num_classes = self.output_size)
 
-		self.e00 = torch.nn.Linear(CONFIG.img_size[0] * CONFIG.img_size[1] * 3, 256).cuda()
-		self.e01 = torch.nn.Linear(256, 256).cuda()
-		self.e02 = torch.nn.Linear(256, 64).cuda()
-		self.e03 = torch.nn.Linear(64, 64).cuda()
-		
-		self.out_layer = torch.nn.Linear(64, 1).cuda()
-		
-		self.activation = torch.nn.ReLU()
-
-	def forward(self, data):
-		
-		out = self.e00(data)
-		out = self.activation(out)
-		
-		out = self.e01(out)
-		out = self.activation(out)
-		
-		out = self.e02(out)
-		out = self.activation(out)
-		
-		out = self.e03(out)
-		out = self.activation(out)
-		
-		out = self.out_layer(out)
+	def forward(self, data, dumm0, dumm1):
+		data = data.view(-1, 128, 128, 3)
+		data = data.permute([0, 3, 1, 2])
+		out = self.model(data)
 		
 		return out
 	
