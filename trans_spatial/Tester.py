@@ -47,8 +47,8 @@ class Tester:
 			for model_id in CONFIG.pipelines:
 				pipeline = CONFIG.pipelines[model_id]
 				
-				if pipeline.model_id != "vit":
-					continue
+				#if pipeline.model_id != "vit":
+				#	continue
 				
 				try:
 					model = pipeline.model_type().cuda()

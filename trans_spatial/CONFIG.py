@@ -30,6 +30,7 @@ linear_pipeline = Pipeline.Pipeline("linear", 1e-3, 1000, 100, ablations)
 linear_norm_pipeline = Pipeline.Pipeline("linear_norm", 1e-3, 1000, 100, ablations)
 vgg16_pipeline = Pipeline.Pipeline("vgg16", 1e-5, 1000, 10, ablations)
 vit_pipeline = Pipeline.Pipeline("vit", 1e-3, 1000, 100, ablations)
+vim_pipeline = Pipeline.Pipeline("vim", 1e-5, 1000, 10, ablations)
 deepset_pipeline = Pipeline.Pipeline("deepset", 1e-4, 30000, 5000, ablations)
 
 pipelines = {
@@ -37,5 +38,6 @@ pipelines = {
 	linear_norm_pipeline.model_id: linear_norm_pipeline,
 	vgg16_pipeline.model_id: vgg16_pipeline,
 	vit_pipeline.model_id: vit_pipeline,
+	vim_pipeline.model_id: vim_pipeline,
 	deepset_pipeline.model_id: deepset_pipeline,
 }

@@ -5,6 +5,7 @@ import ModelLinear
 import ModelLinearNorm
 import ModelVgg16
 import ModelViT
+import ModelViM
 import ModelDeepSet
 
 class Pipeline:
@@ -26,13 +27,16 @@ class Pipeline:
 		elif model_id == "vgg16":
 			model_type = ModelVgg16.ModelVgg16
 			losser_type = torch.nn.MSELoss	
-		elif model_id == "deepset":
-			model_type = ModelDeepSet.ModelDeepSet
-			losser_type = torch.nn.MSELoss
 		elif model_id == "vit":
 			model_type = ModelViT.ModelViT
 			losser_type = torch.nn.MSELoss
-	
+		elif model_id == "vim":
+			model_type = ModelViM.ModelViM
+			losser_type = torch.nn.MSELoss
+		elif model_id == "deepset":
+			model_type = ModelDeepSet.ModelDeepSet
+			losser_type = torch.nn.MSELoss
+		
 		self.model_type = model_type
 		self.losser_type = losser_type
 		self.ablations = ablations
