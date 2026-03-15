@@ -1,5 +1,18 @@
 # Taken under MIT license from: https://github.com/kyegomez/VisionMamba/tree/main
 
+'''
+Citation
+
+@misc{zhu2024vision,
+    title={Vision Mamba: Efficient Visual Representation Learning with Bidirectional State Space Model}, 
+    author={Lianghui Zhu and Bencheng Liao and Qian Zhang and Xinlong Wang and Wenyu Liu and Xinggang Wang},
+    year={2024},
+    eprint={2401.09417},
+    archivePrefix={arXiv},
+    primaryClass={cs.CV}
+}
+'''
+
 """VisionMambaBlock module."""
 
 import torch

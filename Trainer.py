@@ -12,7 +12,7 @@ class Trainer:
 	def Train(self, model_id):
 		pipeline = CONFIG.pipelines[model_id]
 		
-		loader = DataLoader.DataLoader()
+		loader = DataLoader.DataLoader(pipeline.scene_id)
 		
 		print("Training...")
 		
@@ -20,9 +20,9 @@ class Trainer:
 		start_total = time.time()
 		
 		for a in range(pipeline.ablation_count):
-			
-			#if a != 2:
-			#	continue
+			print("Beginning ablation", a)
+			if a != 2:
+				continue
 			
 			losser = pipeline.losser_type()
 			model = pipeline.model_type().cuda()
@@ -41,14 +41,17 @@ class Trainer:
 				
 				preds = None
 				if e == pipeline.epochs:
+					model_path = CONFIG.model_base_path + pipeline.model_id + "_" + pipeline.scene_id + "_a" + str(a) + ".pt"
+					
 					preds = model(img, True, True)
 					print("Fresh Baked:", preds[0].cpu().detach().numpy(), pose[0].cpu().numpy())
-					model.Save(CONFIG.model_base_path + pipeline.model_id + "_a" + str(a) + ".pt")
+					model.Save(model_path)
+					#preds = model(img.detach(), True, False)
 					preds = model(img.detach(), False, False)
 					print("Stale Baked:", preds[0].cpu().detach().numpy(), pose[0].cpu().numpy())
 				else:
 					preds = model(img, True, False)
-		
+				
 				loss = losser(preds, pose)
 		
 				if e < pipeline.epochs + 1:

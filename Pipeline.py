@@ -5,11 +5,13 @@ import ModelLinear
 import ModelLinearNorm
 import ModelVgg16
 import ModelViT
+import ModelViM
 import ModelDeepSet
 
 class Pipeline:
-	def __init__(self, model_id, learning_rate, epochs, print_every_epoch, ablations):
+	def __init__(self, model_id, scene_id, learning_rate, epochs, print_every_epoch, ablations):
 		self.model_id = model_id
+		self.scene_id = scene_id
 		self.learning_rate = learning_rate
 		self.epochs = epochs
 		self.print_every_epoch = print_every_epoch
@@ -26,17 +28,24 @@ class Pipeline:
 		elif model_id == "vgg16":
 			model_type = ModelVgg16.ModelVgg16
 			losser_type = torch.nn.MSELoss	
+		elif model_id == "vit":
+			model_type = ModelViT.ModelViT
+			losser_type = torch.nn.MSELoss
+		elif model_id == "vim":
+			model_type = ModelViM.ModelViM
+			losser_type = torch.nn.MSELoss
 		elif model_id == "deepset":
 			model_type = ModelDeepSet.ModelDeepSet
 			losser_type = torch.nn.MSELoss
-		elif model_id == "vit":
-			model_type = ModelViT.ModelViT()
-			losser_type = torch.nn.MSELoss
-	
+		
 		self.model_type = model_type
 		self.losser_type = losser_type
 		self.ablations = ablations
 		self.ablation_count = len(ablations)
+	
+	# todo: test star results with original and 7scenes ablation styles
+	#    original: samples on side with large pool missing in center
+	#    7scenes:  sample stride
 	
 	def Ablate(self, index, data_loader):
 		ablation = self.ablations[index]

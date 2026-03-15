@@ -12,7 +12,7 @@ class ModelLinearNorm(torch.nn.Module):
 		self.e02 = torch.nn.Linear(256, 64).cuda()
 		self.e03 = torch.nn.Linear(64, 64).cuda()
 		
-		self.out_layer = torch.nn.Linear(64, 1).cuda()
+		self.out_layer = torch.nn.Linear(64, 3).cuda()
 		
 		self.b00 = torch.nn.BatchNorm1d(256)
 		self.b01 = torch.nn.BatchNorm1d(256)

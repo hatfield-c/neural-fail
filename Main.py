@@ -11,12 +11,12 @@ def GetCliAction():
 	print("")
 	arg_parser = argparse.ArgumentParser()
 	arg_parser.add_argument("-a", "--action", type = str, help = "what action to take. must be one of the following: " + str(CONFIG.possible_actions_list))
-	arg_parser.add_argument("-m", "--model", type = str, help = "what model to use. must be one of the following: " + str([]))
+	arg_parser.add_argument("-p", "--pipe", type = str, help = "what model pipeline to use. must be one of the following: " + str([]))
 
 	args = arg_parser.parse_args()
 
 	action = args.action
-	model_id = args.model
+	pipe_id = args.pipe
 
 	if action is None:
 		print("	[Error]: You need to specify an action with the --action argument, i.e. --action [flag].") 
@@ -28,31 +28,29 @@ def GetCliAction():
 	#	print("	For more information, try: --action help")
 	#	exit()
 
-	return action, model_id
+	return action, pipe_id
 
 def Main():
 	
 	start_time = time.time()
 
-	
-
 	actions = CONFIG.possible_actions
-	action, model_id = GetCliAction()
+	action, pipe_id = GetCliAction()
 
 	if action not in actions:
 		action = actions["help"]
 
-	if action == actions["compile_data"]:
+	if action == actions["compile_star"]:
 		compiler = DataCompiler.DataCompiler()
 		compiler.Compile()
 
 	if action == actions["train"]:
 		trainer = Trainer.Trainer()
-		trainer.Train(model_id)
+		trainer.Train(pipe_id)
 		
 	if action == actions["test"]:
 		tester = Tester.Tester()
-		tester.Test()
+		tester.Test(pipe_id)
 
 	runtime = time.time() - start_time
 	runtime = "{:.2f}".format(runtime)

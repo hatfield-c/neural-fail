@@ -8,9 +8,9 @@ class ModelDeepSet(torch.nn.Module):
 		super().__init__()
 
 		self.set_size = CONFIG.img_size[0] * CONFIG.img_size[1]
-		self.embed_size = 32
+		self.embed_size = 16
 
-		nodes = 32
+		nodes = 16#self.embed_size
 		depth = 2
 		entry_size = 5
 		exit_size = self.embed_size
@@ -57,8 +57,8 @@ class ModelDeepSet(torch.nn.Module):
 		self.encoder_depth = depth
 
 		entry_size = exit_size
-		exit_size = 1
-		nodes = 32
+		exit_size = 3
+		nodes = 16
 		depth = 2
 		
 		self.decoder_linears = []
@@ -113,11 +113,16 @@ class ModelDeepSet(torch.nn.Module):
 		return torch.exp((-0.5) * torch.square(out - 1))
 
 	# PyTorch's batchnorm has unstable behavior when using either train or eval modes for inference on variable sized batches.
-	# So after training, we capture and store (i.e. bake) the correct batchnorm parameters in last epoch for use during inference.
+	# After training, we capture and store (i.e. bake) the correct batchnorm parameters in last epoch for use during inference.
 	def forward(self, data, is_train = False, is_bake = False):
 		batch_size = data.shape[0]
 		out = data.view(batch_size * self.set_size, 3)
 		out = torch.concatenate((out, self.grid_list.repeat(batch_size, 1)), dim = 1)
+
+		
+		#is_train = True
+		#is_bake = False
+
 
 		for i in range(self.encoder_depth):
 			linear = self.encoder_linears[i]
