@@ -19,13 +19,14 @@ class DataLoader:
 		elif scene_id == "stairs":
 			item_count = 500
 		
+		frame_offset = (item_count // 3)
 		breakout = 207
 		
 		imgs = []
 		poses = []
 		
 		for i in range(item_count):
-			idx = i + (item_count // 3)
+			idx = i + frame_offset
 			img_path = in_path + "frame-" + str(idx).zfill(6) + ".color.png"
 			pose_path = in_path + "frame-" + str(i).zfill(6) + ".pose.txt"
 			
@@ -57,6 +58,7 @@ class DataLoader:
 		self.imgs = torch.FloatTensor(imgs)
 		self.poses = torch.FloatTensor(poses)
 		self.valid_indices = torch.arange(self.imgs.shape[0])
+		self.invalid_indices = torch.zeros((0, 1))
 		
 	def DrawSamples(self, batch_size):
 		indices = self.valid_indices

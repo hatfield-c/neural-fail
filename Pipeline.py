@@ -50,9 +50,29 @@ class Pipeline:
 	def Ablate(self, index, data_loader):
 		ablation = self.ablations[index]
 		
-		lower = ablation[0]
-		upper = ablation[1]
+		pos_count = ablation[0]
+		neg_count = ablation[1]
 		
-		indices = torch.cat((torch.arange(0, lower), torch.arange(upper, data_loader.imgs.shape[0])))
+		pc = 0
+		nc = 0
 		
-		data_loader.valid_indices = indices
+		pos_indices = []
+		neg_indices = []
+		for i in range(data_loader.imgs.shape[0]):
+			if pc < pos_count:
+				pos_indices.append(i)
+				pc += 1
+			elif nc < neg_count:
+				neg_indices.append(i)
+				nc += 1
+			else:
+				pos_indices.append(i)
+				pc = 1
+				nc = 0
+		
+		data_loader.valid_indices = torch.IntTensor(pos_indices)
+		data_loader.invalid_indices = torch.IntTensor(neg_indices)
+		
+	def Reset(self, data_loader):
+		data_loader.valid_indices = torch.arange(0, data_loader.imgs.shape[0])
+		data_loader.invalid_indices = torch.zeros((0, 1))
