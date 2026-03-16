@@ -4,12 +4,13 @@ import numpy as np
 import CONFIG
 
 class ModelDeepSet(torch.nn.Module):
-	def __init__(self):
+	def __init__(self, img_size):
 		super().__init__()
 
-		self.set_size = CONFIG.img_size[0] * CONFIG.img_size[1]
+		self.img_size = img_size
+		self.set_size = self.img_size[0] * self.img_size[1]
 		self.embed_size = 16
-
+		
 		nodes = 16#self.embed_size
 		depth = 2
 		entry_size = 5
@@ -106,7 +107,7 @@ class ModelDeepSet(torch.nn.Module):
 		#self.activation = torch.nn.ReLU()
 		self.activation = self.Radial
 		
-		self.img_grid = self.ImageGrid(CONFIG.img_size[0], CONFIG.img_size[1])
+		self.img_grid = self.ImageGrid(self.img_size[0], self.img_size[1])
 		self.grid_list = self.img_grid.reshape(-1, 2).cuda()
 
 	def Radial(self, out):

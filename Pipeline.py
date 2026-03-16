@@ -1,5 +1,6 @@
 import torch
 import cv2
+import numpy as np
 
 import ModelLinear
 import ModelLinearNorm
@@ -58,20 +59,30 @@ class Pipeline:
 		
 		pos_indices = []
 		neg_indices = []
+		neg_regions = []
+		beg = None
 		for i in range(data_loader.imgs.shape[0]):
 			if pc < pos_count:
 				pos_indices.append(i)
 				pc += 1
 			elif nc < neg_count:
+				if nc == 0:
+					beg = i
+					
+				if i == data_loader.imgs.shape[0] - 1:
+					 neg_regions.append((beg, i))
+					
 				neg_indices.append(i)
 				nc += 1
 			else:
+				neg_regions.append((beg, i - 1))
 				pos_indices.append(i)
 				pc = 1
 				nc = 0
 		
 		data_loader.valid_indices = torch.IntTensor(pos_indices)
 		data_loader.invalid_indices = torch.IntTensor(neg_indices)
+		data_loader.invalid_regions = neg_regions
 		
 	def Reset(self, data_loader):
 		data_loader.valid_indices = torch.arange(0, data_loader.imgs.shape[0])

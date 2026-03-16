@@ -1,5 +1,6 @@
 import torch
 import time
+import numpy as np
 
 import CONFIG
 import DataLoader
@@ -21,11 +22,12 @@ class Trainer:
 		
 		for a in range(pipeline.ablation_count):
 			print("Beginning ablation", a)
-			#if a != 2:
-			#	continue
+			
+			if a != CONFIG.target_ablation and CONFIG.target_ablation is not None:
+				continue
 			
 			losser = pipeline.losser_type()
-			model = pipeline.model_type().cuda()
+			model = pipeline.model_type(loader.img_size).cuda()
 		
 			optimizer = torch.optim.Adam(
 				model.parameters(),

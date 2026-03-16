@@ -4,8 +4,10 @@ import numpy as np
 import CONFIG
 
 class ModelVgg16(torch.nn.Module):
-	def __init__(self):
+	def __init__(self, img_size):
 		super().__init__()
+
+		self.img_size = img_size
 
 		self.layer_in = torch.nn.Conv2d(3, 64, 3, padding = "same").cuda()
 		self.layer_h0 = torch.nn.Conv2d(64, 64, 3, padding = "same").cuda()
@@ -25,7 +27,7 @@ class ModelVgg16(torch.nn.Module):
 		self.layer_h10 = torch.nn.Conv2d(512, 512, 3, padding = "same").cuda()
 		self.layer_h11 = torch.nn.Conv2d(512, 512, 3, padding = "same").cuda()
 		
-		self.layer_h12 = torch.nn.Linear(512 * int((CONFIG.img_size[0] / (2 ** 5)) * (CONFIG.img_size[1] / (2 ** 5))), 4096).cuda()
+		self.layer_h12 = torch.nn.Linear(512 * int((self.img_size[0] / (2 ** 5)) * (self.img_size[1] / (2 ** 5))), 4096).cuda()
 		self.layer_h13 = torch.nn.Linear(4096, 256).cuda()
 		self.layer_out = torch.nn.Linear(256, 3).cuda()
 
@@ -33,7 +35,7 @@ class ModelVgg16(torch.nn.Module):
 		self.maxpool = torch.nn.MaxPool2d(2)
 
 	def forward(self, data, dumm0, dumm1):
-		data = data.reshape(-1, CONFIG.img_size[0], CONFIG.img_size[1], 3)
+		data = data.reshape(-1, self.img_size[0], self.img_size[1], 3)
 		data = torch.moveaxis(data, 3, 1)
 		
 		out = self.layer_in(data)

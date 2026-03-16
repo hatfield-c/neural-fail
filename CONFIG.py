@@ -16,17 +16,16 @@ possible_actions_list = list(possible_actions.keys())
 
 model_base_path = "data/models/"
 
-img_size = np.array([64, 64])
-
 batch_size = 64
 
 ############################
 #	PIPELINES
 ############################
 
-#star_ablations = [[103, 103], [83, 123], [23, 183]]
-star_ablations = [[103, 103], [83, 123], [83, 123]]
+star_ablations = [[83, 42], [43, 122], [23, 162]]
 scenes_ablations = [[1, 2], [1, 4], [1, 8]]
+
+target_ablation = None#2
 
 pipelines = {
 	### Star pipelines
@@ -42,4 +41,8 @@ pipelines = {
 	"linear_norm_chess": Pipeline.Pipeline("linear_norm", "chess", 1e-3, 3000, 100, scenes_ablations),
 	"vgg16_chess": Pipeline.Pipeline("vgg16", "chess", 1e-5, 3000, 100, scenes_ablations),
 	"deepset_chess": Pipeline.Pipeline("deepset", "chess", 1e-3, 3000, 100, scenes_ablations),
+	
+	### Chess pipelines
+	"vgg16_fire": Pipeline.Pipeline("vgg16", "fire", 1e-5, 3000, 100, scenes_ablations),
+	"deepset_fire": Pipeline.Pipeline("deepset", "fire", 1e-3, 3000, 100, scenes_ablations),
 }
