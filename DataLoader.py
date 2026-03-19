@@ -11,12 +11,16 @@ class DataLoader:
 		
 		print(f"[Loading dataset: {scene_id}]")
 		
-		in_path = "data/in/" + scene_id + "/seq-01/"
+		in_path = "data/in/" + scene_id + "/"
 		
 		item_count = 1000
 		frame_offset = (item_count // 3)
 		self.img_size = np.array([64, 64])
-		if scene_id == "star":
+		if scene_id == "google":
+			item_count = 256
+			frame_offset = 0
+			self.img_size = np.array([64, 256])
+		elif scene_id == "star":
 			item_count = 208
 			frame_offset = 0
 			self.img_size = np.array([64, 256])
@@ -24,22 +28,21 @@ class DataLoader:
 			item_count = 500
 			frame_offset = (item_count // 3)
 		
-		breakout = 207
-		
 		imgs = []
 		poses = []
 		
 		for i in range(item_count):
+			
+			if i < 24 or i > 255 - 24:
+				continue
+			
 			idx = i + frame_offset
 			img_path = in_path + "frame-" + str(idx).zfill(6) + ".color.png"
 			pose_path = in_path + "frame-" + str(i).zfill(6) + ".pose.txt"
 			
 			img = cv2.imread(img_path)
-			img = cv2.GaussianBlur(img, (17, 17), 0)
-			img = cv2.resize(img, (self.img_size[0], self.img_size[1]))
-			
-			#img = cv2.medianBlur(img, 5)
-			#img = cv2.GaussianBlur(img, (5, 5), 0)
+			#img = cv2.GaussianBlur(img, (17, 17), 0)
+			#img = cv2.resize(img, (self.img_size[0], self.img_size[1]))
 			
 			if False:
 				cv2.namedWindow("img", flags = cv2.WINDOW_NORMAL)
@@ -47,25 +50,17 @@ class DataLoader:
 				print(i)
 				cv2.waitKey(0)
 			
-			#img = np.concat((img, b0, b1, b2, b3), axis = 2)
 			img = img / 256.0
 			
 			pose = np.loadtxt(pose_path)
 			#pose = pose[[0, 2, 1]]
 			#pose[2, 3] = -pose[2, 3]
-			pose = pose[:3, 3]
+			#pose = pose[:3, 3]
 			
-			##
-			#pose = pose[:-1].reshape(-1)
-			##
-			
-			pose = torch.FloatTensor(pose).float()
+			pose = torch.FloatTensor(pose).float() / 256
 			
 			imgs.append(img)
 			poses.append(pose)
-			
-			if i == breakout:
-				break
 			
 		cv2.destroyAllWindows()
 		

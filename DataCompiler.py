@@ -8,7 +8,29 @@ class DataCompiler:
 		self.img_size = np.array([64, 256])
 	
 	def Compile(self):
-		print("hello world")
+		src_path = "data/in/google_src.png"
+		out_path = "data/in/google/"
+		
+		src_img = cv2.imread(src_path)
+		src_size = np.array(src_img.shape) * 0.25
+		src_size = src_size.astype(np.int32)
+		
+		src_img = cv2.resize(src_img, (src_size[1], src_size[0]))
+		
+		base = np.array([51, 63])
+		
+		for i in range(256):
+			b = np.array([base[0], base[1] + i])
+			
+			sample = src_img[b[0]:b[0] + 64, b[1]:b[1] + 256]
+			
+			sample_path = out_path + "frame-" + str(i).zfill(6) + ".color.png"
+			pose_path = out_path + "frame-" + str(i).zfill(6) + ".pose.txt"
+		
+			pose = np.array([i])
+			
+			cv2.imwrite(sample_path, sample)
+			np.savetxt(pose_path, pose)
 	
 	def CompileStar(self):
 		

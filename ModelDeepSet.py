@@ -7,7 +7,7 @@ class ModelDeepSet(torch.nn.Module):
 	def __init__(self, img_size):
 		super().__init__()
 
-		na = 16
+		na = 64
 		nb = 64
 		nc = 32
 
@@ -62,7 +62,7 @@ class ModelDeepSet(torch.nn.Module):
 		self.encoder_depth = depth
 
 		entry_size = exit_size
-		exit_size = 3
+		exit_size = 1
 		nodes = na
 		depth = 2
 		

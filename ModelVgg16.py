@@ -29,7 +29,7 @@ class ModelVgg16(torch.nn.Module):
 		
 		self.layer_h12 = torch.nn.Linear(512 * int((self.img_size[0] / (2 ** 5)) * (self.img_size[1] / (2 ** 5))), 4096).cuda()
 		self.layer_h13 = torch.nn.Linear(4096, 256).cuda()
-		self.layer_out = torch.nn.Linear(256, 3).cuda()
+		self.layer_out = torch.nn.Linear(256, 1).cuda()
 
 		self.activation = torch.nn.ReLU()
 		self.maxpool = torch.nn.MaxPool2d(2)

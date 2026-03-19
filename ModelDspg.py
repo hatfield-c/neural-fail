@@ -8,7 +8,7 @@ class ModelDspg(torch.nn.Module):
 		super().__init__()
 		
 		na = 16
-		nb = 64
+		nb = 16
 		nc = 16
 
 		self.img_size = img_size
@@ -16,7 +16,7 @@ class ModelDspg(torch.nn.Module):
 		self.embed_size = na
 		
 		nodes = na
-		depth = 2
+		depth = 4
 		entry_size = 5
 		exit_size = self.embed_size
 
@@ -62,9 +62,9 @@ class ModelDspg(torch.nn.Module):
 		self.encoder_depth = depth
 
 		entry_size = exit_size
-		exit_size = 3#12#3
+		exit_size = 1#3
 		nodes = nc
-		depth = 5
+		depth = 4
 		
 		self.decoder_linears = []
 		self.decoder_norms = []

@@ -27,6 +27,9 @@ star_ablations = [[83, 42], [43, 122], [23, 162]]
 scenes_ablations = [[1, 2], [1, 4], [1, 8]]
 fire_ablations = [[1, 2], [1, 4], [4, 16]]
 
+sat_ablations = [[1, 2], [1, 4], [43, 122]]
+#sat_ablations = [[1, 2], [1, 4], [1, 16]]
+
 target_ablation = 2
 #target_ablation = None
 
@@ -41,6 +44,11 @@ pipelines = {
 	"vit_star": Pipeline.Pipeline("vit", "star", 1e-3, 1000, 100, star_ablations),
 	"vim_star": Pipeline.Pipeline("vim", "star", 1e-5, 1000, 10, star_ablations),
 	"deepset_star": Pipeline.Pipeline("deepset", "star", 1e-3, 1000, 100, star_ablations),
+	
+	### Google pipelines
+	"vgg16_google": Pipeline.Pipeline("vgg16", "google", 1e-5, 3000, 100, sat_ablations, vgg16_color),
+	#"deepset_google": Pipeline.Pipeline("dspg", "google", 1e-3, 20000, 1000, sat_ablations, deepset_color),
+	"deepset_google": Pipeline.Pipeline("deepset", "google", 1e-3, 2000, 100, sat_ablations, deepset_color),
 	
 	### Chess pipelines
 	#"linear_chess": Pipeline.Pipeline("linear", "chess", 1e-3, 3000, 100, scenes_ablations),

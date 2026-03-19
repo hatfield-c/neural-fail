@@ -83,7 +83,8 @@ class Tester:
 				
 				print(poses[-1].detach().numpy(), truth[-1].numpy())
 				
-				perror = torch.linalg.norm(poses - truth, dim = 1)
+				#perror = torch.linalg.norm(poses - truth, dim = 1)
+				perror = torch.abs(poses[:, 0] - truth)
 				
 				pipeline.Ablate(a, loader)
 				valid_truth = truth[loader.valid_indices]
@@ -97,20 +98,20 @@ class Tester:
 				
 				pipeline.Reset(loader)
 				
-				ax1.plot(truth[:, loader.largest_axis], truth[:, loader.largest_axis], linestyle = 'dashed', color = "black", alpha = 0.4)
-				
 				ax.plot(np.arange(perror.shape[0]) / perror.shape[0], perror, label = model_id, c = pipeline.color)
-				ax1.plot(truth[:, loader.largest_axis], poses[:, loader.largest_axis], label = model_id, c = pipeline.color)
-				ax1.scatter(valid_truth[:, loader.largest_axis], valid_truth[:, loader.largest_axis], color = "green", alpha = 0.4)
+				
+				ax1.plot(truth[:], truth[:], linestyle = 'dashed', color = "black", alpha = 0.4)
+				ax1.plot(truth[:], poses[:], label = model_id, c = pipeline.color)
+				ax1.scatter(valid_truth[:], valid_truth[:], color = "green", alpha = 0.4)
 				
 				idx0 = 0#3
 				idx1 = 1#7
 				idx2 = 2#11
 				
-				ax2.plot(truth[:, idx0], truth[:, idx1], truth[:, idx2], linestyle = 'dashed', color = "black", alpha = 0.4)
-				ax2.plot(poses[:, idx0], poses[:, idx1], poses[:, idx2], c = pipeline.color)
-				ax2.scatter(poses[:, idx0], poses[:, idx1], poses[:, idx2], color = "gray", alpha = 0.4)
-				ax2.scatter(valid_truth[:, idx0], valid_truth[:, idx1], valid_truth[:, idx2], color = "green", alpha = 0.4)
+				#ax2.plot(truth[:, idx0], truth[:, idx1], truth[:, idx2], linestyle = 'dashed', color = "black", alpha = 0.4)
+				#ax2.plot(poses[:, idx0], poses[:, idx1], poses[:, idx2], c = pipeline.color)
+				#ax2.scatter(poses[:, idx0], poses[:, idx1], poses[:, idx2], color = "gray", alpha = 0.4)
+				#ax2.scatter(valid_truth[:, idx0], valid_truth[:, idx1], valid_truth[:, idx2], color = "green", alpha = 0.4)
 				
 			ax.legend(loc = "upper left")
 			ax1.legend(loc = "upper left")
