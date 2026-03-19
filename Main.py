@@ -42,6 +42,10 @@ def Main():
 
 	if action == actions["compile_star"]:
 		compiler = DataCompiler.DataCompiler()
+		compiler.CompileStar()
+
+	if action == actions["compile_data"]:
+		compiler = DataCompiler.DataCompiler()
 		compiler.Compile()
 
 	if action == actions["train"]:

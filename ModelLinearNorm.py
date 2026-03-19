@@ -4,10 +4,12 @@ import numpy as np
 import CONFIG
 
 class ModelLinearNorm(torch.nn.Module):
-	def __init__(self):
+	def __init__(self, img_size):
 		super().__init__()
+		
+		self.img_size = img_size
 
-		self.e00 = torch.nn.Linear(CONFIG.img_size[0] * CONFIG.img_size[1] * 3, 256).cuda()
+		self.e00 = torch.nn.Linear(img_size[0] * img_size[1] * 3, 256).cuda()
 		self.e01 = torch.nn.Linear(256, 256).cuda()
 		self.e02 = torch.nn.Linear(256, 64).cuda()
 		self.e03 = torch.nn.Linear(64, 64).cuda()

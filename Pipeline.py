@@ -8,14 +8,16 @@ import ModelVgg16
 import ModelViT
 import ModelViM
 import ModelDeepSet
+import ModelDspg
 
 class Pipeline:
-	def __init__(self, model_id, scene_id, learning_rate, epochs, print_every_epoch, ablations):
+	def __init__(self, model_id, scene_id, learning_rate, epochs, print_every_epoch, ablations, color = "black"):
 		self.model_id = model_id
 		self.scene_id = scene_id
 		self.learning_rate = learning_rate
 		self.epochs = epochs
 		self.print_every_epoch = print_every_epoch
+		self.color = color
 		
 		model_type = None
 		losser_type = None
@@ -38,15 +40,15 @@ class Pipeline:
 		elif model_id == "deepset":
 			model_type = ModelDeepSet.ModelDeepSet
 			losser_type = torch.nn.MSELoss
+		elif model_id == "dspg":
+			#model_type = ModelDeepSet.ModelDeepSet
+			model_type = ModelDspg.ModelDspg
+			losser_type = torch.nn.MSELoss
 		
 		self.model_type = model_type
 		self.losser_type = losser_type
 		self.ablations = ablations
 		self.ablation_count = len(ablations)
-	
-	# todo: test star results with original and 7scenes ablation styles
-	#    original: samples on side with large pool missing in center
-	#    7scenes:  sample stride
 	
 	def Ablate(self, index, data_loader):
 		ablation = self.ablations[index]
@@ -84,6 +86,16 @@ class Pipeline:
 		data_loader.invalid_indices = torch.IntTensor(neg_indices)
 		data_loader.invalid_regions = neg_regions
 		
+		if False:
+			for i in range(data_loader.valid_indices.shape[0]):
+				img = data_loader.imgs[data_loader.valid_indices[i]]
+				img = img.cpu().numpy()
+				cv2.namedWindow("img", flags = cv2.WINDOW_NORMAL)
+				cv2.imshow("img", img)
+				print(i)
+				cv2.waitKey(0)
+			cv2.destroyAllWindows()
+				
 	def Reset(self, data_loader):
 		data_loader.valid_indices = torch.arange(0, data_loader.imgs.shape[0])
 		data_loader.invalid_indices = torch.zeros((0, 1))

@@ -12,7 +12,7 @@ class Tester:
 	
 	def Test(self, pipe_id):
 		tokens = pipe_id.split("_")
-		root_scene = tokens[1]
+		root_scene = tokens[-1]
 		
 		ablations = CONFIG.pipelines[pipe_id].ablations
 		loader = DataLoader.DataLoader(root_scene)
@@ -31,10 +31,11 @@ class Tester:
 			lower = (lower)#.int() * 255
 			upper = (upper)#.int() * 255
 			
-			fig, ax = plt.subplots()
 			fig1 = plt.figure()
-			ax1 = fig1.add_subplot()#(projection = "3d")
-			#fig1, ax1 = plt.subplots()
+			ax1 = fig1.add_subplot()
+			fig2 = plt.figure()
+			ax2 = fig2.add_subplot(projection = "3d")
+			fig, ax = plt.subplots()
 			
 			ax.set_xlim([-0.1, 1.1])
 			ax.set_ylim([-0.1, 1.1])
@@ -56,9 +57,12 @@ class Tester:
 				if pipeline.scene_id != root_scene:
 					continue
 				
-				#if pipeline.model_id != "deepset":
+				#if pipeline.model_id != "dspg":
 				#	continue
 				
+				#if pipeline.model_id != "deepset":
+				#	continue
+			
 				model_path = CONFIG.model_base_path + pipeline.model_id + "_" + pipeline.scene_id + "_a" + str(a) + ".pt"
 				
 				try:
@@ -77,6 +81,8 @@ class Tester:
 				poses = (poses.detach().cpu())#.int() * 255
 				truth = (a_poses.detach().cpu())#.int() * 255
 				
+				print(poses[-1].detach().numpy(), truth[-1].numpy())
+				
 				perror = torch.linalg.norm(poses - truth, dim = 1)
 				
 				pipeline.Ablate(a, loader)
@@ -87,15 +93,24 @@ class Tester:
 				ax.axvspan(1, 1.1, alpha = 0.2)
 				for i in range(len(invalid_regions)):
 					region = invalid_regions[i]
-					ax.axvspan(region[0] / 207.0, region[1] / 207.0, alpha = 0.2)
+					ax.axvspan(region[0] / 207.0, (region[1] + 1) / 207.0, alpha = 0.2)
 				
 				pipeline.Reset(loader)
 				
 				ax1.plot(truth[:, loader.largest_axis], truth[:, loader.largest_axis], linestyle = 'dashed', color = "black", alpha = 0.4)
 				
-				ax.plot(np.arange(perror.shape[0]) / perror.shape[0], perror, label = model_id)
-				ax1.plot(truth[:, loader.largest_axis], poses[:, loader.largest_axis], label = model_id)
+				ax.plot(np.arange(perror.shape[0]) / perror.shape[0], perror, label = model_id, c = pipeline.color)
+				ax1.plot(truth[:, loader.largest_axis], poses[:, loader.largest_axis], label = model_id, c = pipeline.color)
 				ax1.scatter(valid_truth[:, loader.largest_axis], valid_truth[:, loader.largest_axis], color = "green", alpha = 0.4)
+				
+				idx0 = 0#3
+				idx1 = 1#7
+				idx2 = 2#11
+				
+				ax2.plot(truth[:, idx0], truth[:, idx1], truth[:, idx2], linestyle = 'dashed', color = "black", alpha = 0.4)
+				ax2.plot(poses[:, idx0], poses[:, idx1], poses[:, idx2], c = pipeline.color)
+				ax2.scatter(poses[:, idx0], poses[:, idx1], poses[:, idx2], color = "gray", alpha = 0.4)
+				ax2.scatter(valid_truth[:, idx0], valid_truth[:, idx1], valid_truth[:, idx2], color = "green", alpha = 0.4)
 				
 			ax.legend(loc = "upper left")
 			ax1.legend(loc = "upper left")

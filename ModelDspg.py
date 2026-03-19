@@ -3,13 +3,13 @@ import numpy as np
 
 import CONFIG
 
-class ModelDeepSet(torch.nn.Module):
+class ModelDspg(torch.nn.Module):
 	def __init__(self, img_size):
 		super().__init__()
-
+		
 		na = 16
 		nb = 64
-		nc = 32
+		nc = 16
 
 		self.img_size = img_size
 		self.set_size = self.img_size[0] * self.img_size[1]
@@ -62,9 +62,9 @@ class ModelDeepSet(torch.nn.Module):
 		self.encoder_depth = depth
 
 		entry_size = exit_size
-		exit_size = 3
-		nodes = na
-		depth = 2
+		exit_size = 3#12#3
+		nodes = nc
+		depth = 5
 		
 		self.decoder_linears = []
 		self.decoder_norms = []
@@ -108,14 +108,15 @@ class ModelDeepSet(torch.nn.Module):
 		self.decoder_norms = torch.nn.ModuleList(self.decoder_norms)
 		self.decoder_depth = depth
 
-		#self.activation = torch.nn.ReLU()
+		self.relu = torch.nn.ReLU()
+		#self.activation = self.relu
 		self.activation = self.Radial
 		
 		self.img_grid = self.ImageGrid(self.img_size[0], self.img_size[1])
 		self.grid_list = self.img_grid.reshape(-1, 2).cuda()
 
 	def Radial(self, out):
-		return torch.exp((-0.5) * torch.square(out - 1))
+		return torch.exp((-1) * torch.square(out - 0))
 
 	# PyTorch's batchnorm has unstable behavior when using either train or eval modes for inference on variable sized batches.
 	# After training, we capture and store (i.e. bake) the correct batchnorm parameters in last epoch for use during inference.
@@ -127,7 +128,7 @@ class ModelDeepSet(torch.nn.Module):
 		
 		#is_train = True
 		#is_bake = False
-
+		
 
 		for i in range(self.encoder_depth):
 			linear = self.encoder_linears[i]
@@ -148,16 +149,17 @@ class ModelDeepSet(torch.nn.Module):
 						self.encoder_norm_weights[i] += norm_weights[:]
 						self.encoder_norm_bias[i] += norm_bias[:]
 					
-					out = norm(out)
+					#out = norm(out)
 				else:
 					norm_means = self.encoder_norm_means[i]
 					norm_vars = self.encoder_norm_vars[i]
 					norm_weights = self.encoder_norm_weights[i]
 					norm_bias = self.encoder_norm_bias[i]
 					
-					out = (out - norm_means.view(1, -1)) / torch.sqrt(norm_vars.view(1, -1) + norm.eps)
-					out = (out * norm_weights.view(1, -1)) + norm_bias.view(1, -1)
+					#out = (out - norm_means.view(1, -1)) / torch.sqrt(norm_vars.view(1, -1) + norm.eps)
+					#out = (out * norm_weights.view(1, -1)) + norm_bias.view(1, -1)
 				out = self.activation(out)
+				#out = self.relu(out)
 		
 		out = out.view(batch_size, self.set_size, self.embed_size)
 		out = torch.mean(out, dim = 1)
@@ -183,16 +185,18 @@ class ModelDeepSet(torch.nn.Module):
 						self.decoder_norm_weights[i] += norm_weights[:]
 						self.decoder_norm_bias[i] += norm_bias[:]
 					
-					out = norm(out)
+					#out = norm(out)
 				else:
 					norm_means = self.decoder_norm_means[i]
 					norm_vars = self.decoder_norm_vars[i]
 					norm_weights = self.decoder_norm_weights[i]
 					norm_bias = self.decoder_norm_bias[i]
 					
-					out = (out - norm_means.view(1, -1)) / torch.sqrt(norm_vars.view(1, -1) + norm.eps)
-					out = (out * norm_weights.view(1, -1)) + norm_bias.view(1, -1)
+					#out = (out - norm_means.view(1, -1)) / torch.sqrt(norm_vars.view(1, -1) + norm.eps)
+					#out = (out * norm_weights.view(1, -1)) + norm_bias.view(1, -1)
+					
 				out = self.activation(out)
+				#out = self.relu(out)
 			
 		return out
 	
@@ -203,7 +207,7 @@ class ModelDeepSet(torch.nn.Module):
 
 	def Load(self, load_path):
 		self.load_state_dict(torch.load(load_path))
-
+		self.eval()
 		print("\nLoaded model from", load_path)
 
 	def ImageGrid(self, height, width):

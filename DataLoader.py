@@ -35,15 +35,30 @@ class DataLoader:
 			pose_path = in_path + "frame-" + str(i).zfill(6) + ".pose.txt"
 			
 			img = cv2.imread(img_path)
+			img = cv2.GaussianBlur(img, (17, 17), 0)
 			img = cv2.resize(img, (self.img_size[0], self.img_size[1]))
-			#cv2.imshow("img", img)
-			#cv2.waitKey(0)
+			
+			#img = cv2.medianBlur(img, 5)
+			#img = cv2.GaussianBlur(img, (5, 5), 0)
+			
+			if False:
+				cv2.namedWindow("img", flags = cv2.WINDOW_NORMAL)
+				cv2.imshow("img", img)
+				print(i)
+				cv2.waitKey(0)
+			
+			#img = np.concat((img, b0, b1, b2, b3), axis = 2)
 			img = img / 256.0
 			
 			pose = np.loadtxt(pose_path)
-			pose = pose[[0, 2, 1]]
-			pose[2, 3] = -pose[2, 3]
-			pose = pose[:, 3]
+			#pose = pose[[0, 2, 1]]
+			#pose[2, 3] = -pose[2, 3]
+			pose = pose[:3, 3]
+			
+			##
+			#pose = pose[:-1].reshape(-1)
+			##
+			
 			pose = torch.FloatTensor(pose).float()
 			
 			imgs.append(img)
@@ -52,6 +67,8 @@ class DataLoader:
 			if i == breakout:
 				break
 			
+		cv2.destroyAllWindows()
+		
 		imgs = np.stack(imgs)
 		poses = np.stack(poses)
 		

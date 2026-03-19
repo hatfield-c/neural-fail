@@ -8,6 +8,9 @@ class DataCompiler:
 		self.img_size = np.array([64, 256])
 	
 	def Compile(self):
+		print("hello world")
+	
+	def CompileStar(self):
 		
 		out_path = "data/in/star/seq-01/"
 		
