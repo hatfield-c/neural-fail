@@ -9,6 +9,7 @@ import ModelViT
 import ModelViM
 import ModelDeepSet
 import ModelDspg
+import ModelDsvgg
 
 class Pipeline:
 	def __init__(self, model_id, scene_id, learning_rate, epochs, print_every_epoch, ablations, color = "black"):
@@ -41,8 +42,10 @@ class Pipeline:
 			model_type = ModelDeepSet.ModelDeepSet
 			losser_type = torch.nn.MSELoss
 		elif model_id == "dspg":
-			#model_type = ModelDeepSet.ModelDeepSet
 			model_type = ModelDspg.ModelDspg
+			losser_type = torch.nn.MSELoss
+		elif model_id == "dsvgg":
+			model_type = ModelDsvgg.ModelDsvgg
 			losser_type = torch.nn.MSELoss
 		
 		self.model_type = model_type
@@ -63,6 +66,7 @@ class Pipeline:
 		neg_indices = []
 		neg_regions = []
 		beg = None
+		
 		for i in range(data_loader.imgs.shape[0]):
 			if pc < pos_count:
 				pos_indices.append(i)

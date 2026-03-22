@@ -53,9 +53,10 @@ class Trainer:
 					print("Stale Baked:", preds[0].cpu().detach().numpy(), pose[0].cpu().numpy())
 				else:
 					preds = model(img, True, False)
-				
+
+				preds = preds[:, 0]				
 				loss = losser(preds, pose)
-		
+				
 				if e < pipeline.epochs + 1:
 					optimizer.zero_grad()
 					loss.backward()

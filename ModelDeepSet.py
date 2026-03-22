@@ -7,7 +7,7 @@ class ModelDeepSet(torch.nn.Module):
 	def __init__(self, img_size):
 		super().__init__()
 
-		na = 64
+		na = 16
 		nb = 64
 		nc = 32
 
@@ -157,7 +157,7 @@ class ModelDeepSet(torch.nn.Module):
 					
 					out = (out - norm_means.view(1, -1)) / torch.sqrt(norm_vars.view(1, -1) + norm.eps)
 					out = (out * norm_weights.view(1, -1)) + norm_bias.view(1, -1)
-				out = self.activation(out)
+			out = self.activation(out)
 		
 		out = out.view(batch_size, self.set_size, self.embed_size)
 		out = torch.mean(out, dim = 1)
