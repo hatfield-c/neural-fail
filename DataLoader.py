@@ -13,20 +13,17 @@ class DataLoader:
 		
 		in_path = "data/in/" + scene_id + "/"
 		
-		item_count = 256
+		item_count = 58
 		frame_offset = 0
-		self.img_size = np.array([64, 256])
-		if scene_id == "stairs":
-			item_count = 500
-			frame_offset = (item_count // 3)
+		self.img_size = np.array([480, 640])
 		
 		imgs = []
 		poses = []
 		
-		for i in range(item_count):
+		for i in range(0, self.img_size[1] - 64, 10):
 			
-			if i < 24 or i > item_count - 24:
-				continue
+			#if i < 24 or i > item_count - 24:
+			#	continue
 			
 			idx = i + frame_offset
 			img_path = in_path + "frame-" + str(idx).zfill(6) + ".color.png"
@@ -45,12 +42,11 @@ class DataLoader:
 			
 			img = img / 256.0
 			
-			
 			#pose = pose[[0, 2, 1]]
 			#pose[2, 3] = -pose[2, 3]
 			#pose = pose[:3, 3]
 			
-			pose = torch.FloatTensor(pose).float() / 256
+			pose = torch.FloatTensor(pose).float() / 640
 			
 			imgs.append(img)
 			poses.append(pose)
@@ -63,15 +59,17 @@ class DataLoader:
 		axes_mags = np.max(poses, axis = 0) - np.min(poses, axis = 0)
 		self.largest_axis = np.argmax(axes_mags)
 		
-		self.imgs = torch.FloatTensor(imgs)
-		self.poses = torch.FloatTensor(poses)
-		self.valid_indices = torch.arange(self.imgs.shape[0])
-		self.invalid_indices = torch.zeros((0, 1))
+		self.imgs = torch.FloatTensor(imgs).cuda()
+		self.poses = torch.FloatTensor(poses).cuda()
+		self.valid_indices = torch.arange(self.imgs.shape[0]).cuda()
+		self.invalid_indices = torch.zeros((0, 1)).cuda()
 		self.invalid_regions = []
 		
 		print(f"[{scene_id}]: {imgs.shape[0]} samples loaded")
 		
 	def DrawSamples(self, batch_size):
+		return self.imgs[self.valid_indices], self.poses[self.valid_indices]
+		
 		indices = self.valid_indices
 		
 		#if batch_size > 0:

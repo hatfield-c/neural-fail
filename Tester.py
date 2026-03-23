@@ -87,7 +87,7 @@ class Tester:
 				perror = torch.abs(poses[:, 0] - truth)
 				
 				pipeline.Ablate(a, loader)
-				valid_truth = truth[loader.valid_indices]
+				valid_truth = truth[loader.valid_indices.cpu()]
 				invalid_regions = loader.invalid_regions
 				
 				ax.axvspan(-0.1, 0, alpha = 0.2)

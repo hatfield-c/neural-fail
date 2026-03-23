@@ -20,6 +20,10 @@ class Trainer:
 		avg_time = 1
 		start_total = time.time()
 		
+		prev_loss = 100
+		l_thresh = 0.01
+		ldelta_thresh = 1e-3
+		ldelta_target = 1e-5
 		for a in range(pipeline.ablation_count):
 			print("Beginning ablation", a)
 			
@@ -32,9 +36,11 @@ class Trainer:
 			optimizer = torch.optim.Adam(
 				model.parameters(),
 				lr = pipeline.learning_rate,
-			)	
+			)
 		
 			pipeline.Ablate(a, loader)
+			
+			print("    Ablation size:", loader.valid_indices.shape[0])
 			
 			for e in range(pipeline.epochs + 1):
 				start_time = time.time()
@@ -57,7 +63,17 @@ class Trainer:
 				preds = preds[:, 0]				
 				loss = losser(preds, pose)
 				
+				#lval = loss.detach().item()
 				if e < pipeline.epochs + 1:
+					
+					#ldelta = abs(lval - prev_loss)
+					
+					#lr = pipeline.learning_rate
+					#if lval > l_thresh and ldelta < ldelta_thresh:
+					#	print("flag")
+					#	lr = 2.5e-3#ldelta_target / ldelta
+					#optimizer.param_groups[0]['lr'] = lr
+					
 					optimizer.zero_grad()
 					loss.backward()
 					optimizer.step()
@@ -70,6 +86,7 @@ class Trainer:
 				if e % pipeline.print_every_epoch == 0:
 					print(preds[0].cpu().detach().numpy(), pose[0].cpu().numpy())
 				
+				#prev_loss = lval
 				avg_time = (avg_time + (time.time() - start_time)) / 2
 		
 			print("\nCompleted in", int((time.time() - start_total) / 60), "minutes.")

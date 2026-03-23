@@ -28,7 +28,7 @@ scenes_ablations = [[1, 2], [1, 4], [1, 8]]
 fire_ablations = [[1, 2], [1, 4], [4, 16]]
 
 sat_ablations = [[1, 2], [1, 4], [43, 122]]
-sa = [[1, 2], [1, 4], [3, 202]]
+sa = [[1, 2], [1, 4], [1, 56]]
 
 target_ablation = 2
 #target_ablation = None
@@ -73,9 +73,9 @@ pipelines = {
 	"deepset_river": Pipeline.Pipeline("deepset", "river", 1e-3, 2000, 100, sat_ablations, deepset_color),
 	
 	### suburb pipelines
-	"vgg16_suburb": Pipeline.Pipeline("vgg16", "suburb", 1e-5, 3000, 100, star_ablations, vgg16_color),
+	"vgg16_suburb": Pipeline.Pipeline("vgg16", "suburb", 1e-5, 1000, 100, sa, vgg16_color),
 	#"deepset_suburb": Pipeline.Pipeline("dspg", "suburb", 1e-3, 20000, 1000, sat_ablations, deepset_color),
-	"deepset_suburb": Pipeline.Pipeline("dsvgg", "suburb", 1e-5, 3000, 100, star_ablations, deepset_color),
+	"deepset_suburb": Pipeline.Pipeline("dsvgg", "suburb", 1e-5, 1000, 100, sa, deepset_color),
 	
 	### Chess pipelines
 	#"linear_chess": Pipeline.Pipeline("linear", "chess", 1e-3, 3000, 100, scenes_ablations),

@@ -8,55 +8,48 @@ class DataCompiler:
 		self.img_size = np.array([64, 256])
 	
 	def Compile(self):
-		scene_id = "star"
+		scene_id = "suburb"
+		obj_id = "star"
 		
 		src_path = "data/in/" + scene_id + "_src.png"
+		obj_path = "data/in/" + obj_id + ".png"
 		out_path = "data/in/" + scene_id + "/"
 		
 		base = None
-		img_scale = 1
 		if scene_id == "desert":
 			base = np.array([112, 19])
-			img_scale = 0.25
 		elif scene_id == "dock":
 			base = np.array([515, 864])
-			img_scale = 1
 		elif scene_id == "field":
 			base = np.array([127, 26])
-			img_scale = 0.25
 		elif scene_id == "google":
 			base = np.array([51, 63])
-			img_scale = 0.25
 		elif scene_id == "marsh":
 			base = np.array([238, 282])
-			img_scale = 0.5
 		elif scene_id == "river":
 			base = np.array([254, 279])
-			img_scale = 0.5
 		elif scene_id == "suburb":
-			base = np.array([104, 42])
-			img_scale = 0.25
+			base = np.array([0, 459])
 		elif scene_id == "star":
 			base = np.array([0, 0])
-			img_scale = 1
 		
 		src_img = cv2.imread(src_path)
-		src_size = np.array(src_img.shape) * img_scale
-		src_size = src_size.astype(np.int32)
+		obj_img = cv2.imread(obj_path)
 		
-		src_img = cv2.resize(src_img, (src_size[1], src_size[0]))
+		img_size = np.array((480, 640))
+		scene_size = np.array([480, 1100], dtype = np.int32)
+		src_img = cv2.resize(src_img, (scene_size[1], scene_size[0]))
 		
-		##
-		bg = cv2.imread("data/in/suburb_src.png")
+		scene_img = src_img[base[0]:base[0] + img_size[0], base[1]:base[1] + img_size[1]]
 		
-		for i in range(256):
-			b = np.array([base[0], base[1] + i])
+		for i in range(0, img_size[1] - 64, 10):
 			
-			sample = src_img[b[0]:b[0] + 64, b[1]:b[1] + 256]
+			sample = scene_img.copy()
 			
-			##
-			sample = sample.copy()
-			sample[sample[:, :, 0] == 0] = bg[:64, :256][sample[:, :, 0] == 0]
+			obj = obj_img.copy()
+			obj[obj[:, :, 0] == 0] = sample[240:240+64, i:i+64][obj[:, :, 0] == 0]
+			
+			sample[240:240+64, i:i+64] = obj
 			
 			sample_path = out_path + "frame-" + str(i).zfill(6) + ".color.png"
 			pose_path = out_path + "frame-" + str(i).zfill(6) + ".pose.txt"

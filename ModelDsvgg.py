@@ -27,12 +27,13 @@ class ModelDsvgg(torch.nn.Module):
 		self.layer_h10 = torch.nn.Conv2d(512, 512, 3, padding = "same").cuda()
 		self.layer_h11 = torch.nn.Conv2d(512, 512, 3, padding = "same").cuda()
 		
-		self.layer_h12 = torch.nn.Linear(512 * int((self.img_size[0] / (2 ** 5)) * (self.img_size[1] / (2 ** 5))), 4096).cuda()
-		self.layer_h13 = torch.nn.Linear(4096, 256).cuda()
+		self.layer_h12 = torch.nn.Linear(512, 512).cuda()
+		#self.layer_h12 = torch.nn.Linear(512 * int((self.img_size[0] / (2 ** 5)) * (self.img_size[1] / (2 ** 5))), 4096).cuda()
+		self.layer_h13 = torch.nn.Linear(512, 256).cuda()
 		self.layer_out = torch.nn.Linear(256, 1).cuda()
 
-		#self.activation = torch.nn.ReLU()
-		self.activation = self.Radial
+		self.activation = torch.nn.ReLU()
+		#self.activation = self.Radial
 		self.maxpool = torch.nn.MaxPool2d(2)
 	
 	def Radial(self, out):
@@ -83,7 +84,10 @@ class ModelDsvgg(torch.nn.Module):
 		
 		out = self.maxpool(out)
 		
-		out = out.reshape(-1, out.shape[1] * out.shape[2] * out.shape[3])
+		out = out.reshape(-1, out.shape[1], out.shape[2] * out.shape[3])
+		#out = torch.mean(out, dim = 2)
+		out = torch.max(out, dim = 2).values
+		
 		out = self.layer_h12(out)
 		out = self.activation(out)
 		out = self.layer_h13(out)

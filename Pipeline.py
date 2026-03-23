@@ -86,7 +86,7 @@ class Pipeline:
 				pc = 1
 				nc = 0
 		
-		data_loader.valid_indices = torch.IntTensor(pos_indices)
+		data_loader.valid_indices = torch.IntTensor(pos_indices).cuda()
 		data_loader.invalid_indices = torch.IntTensor(neg_indices)
 		data_loader.invalid_regions = neg_regions
 		
@@ -96,7 +96,7 @@ class Pipeline:
 				img = img.cpu().numpy()
 				cv2.namedWindow("img", flags = cv2.WINDOW_NORMAL)
 				cv2.imshow("img", img)
-				print(i)
+				print(data_loader.poses[data_loader.valid_indices[i]])
 				cv2.waitKey(0)
 			cv2.destroyAllWindows()
 				
